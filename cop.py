@@ -14,59 +14,59 @@ if tools_404:
     print('|- Here is an list of them: {}'.format(",".join(tools_404)))
     exit()
 
-ip = raw_input("|- Enter ip(s)/domain(s) to kick off: ")
+host = raw_input("|- Enter ip(s)/domain(s) to kick off: ")
 
-ips = check_host_is_up(ip, fast=False)
+hosts = check_host_is_up(host, fast=False)
 
 db = {}
 
-for ip in ips:
-    db[ip] = {}
+for host in hosts:
+    db[host] = {}
 
-if ips:
-    print('|- IPs are alive({}):'.format(len(ips)))
-    print('|\t\t\t{}'.format("\n|\t\t\t".join(ips)))
+if hosts:
+    print('|- Hosts are alive({}):'.format(len(hosts)))
+    print('|\t\t\t{}'.format("\n|\t\t\t".join(hosts)))
 else:
     print('|- Nothing to do !')
     exit()
 
 print('|')
 
-for ip in db:
-    dns_r = host_dns_reverse(ip)
-    db[ip]['dns'] = dns_r
-    print('|- IP: {:15} Dns reverse: {}'.format(ip, dns_r or '-'))
+for host in db:
+    dns_r = host_dns_reverse(host)
+    db[host]['dns'] = dns_r
+    print('|- Host: {:15} Dns reverse: {}'.format(host, dns_r or '-'))
 
 print('|')
 
-for ip in db:
+for host in db:
     # @todo adding seen whois list, according to net range
-    whois = host_whois(ip)
-    db[ip]['whois'] = whois
-    print('|- IP: {:15} whois:'.format(ip))
+    whois = host_whois(host)
+    db[host]['whois'] = whois
+    print('|- Host: {:15} whois:'.format(host))
     print('|\t\t\t\t' + '\n|\t\t\t\t'.join(['{}: {}'.format(k, v \
         if type(v) == str else "-".join(v)) for k, v in whois.iteritems()]))
 
 print('|')
 
-for ip in db:
-    ports = host_port_discovery(ip, fast=False)
-    db[ip]['ports'] = ports
-    print('|- IP: {:15} Open Ports: {}'.format(ip, ", ".join(ports or ['-'])))
+for host in db:
+    ports = host_port_discovery(host, fast=False)
+    db[host]['ports'] = ports
+    print('|- Host: {:15} Open Ports: {}'.format(host, ", ".join(ports or ['-'])))
 
 print('|')
 
-for ip in db:
-    os = host_os_detect(ip, db[ip]['ports'])
-    db[ip]['os'] = os
-    print('|- IP: {:15} Os: {}'.format(ip, ", ".join(os or ['-'])))
+for host in db:
+    os = host_os_detect(host, db[host]['ports'])
+    db[host]['os'] = os
+    print('|- Host: {:15} Os: {}'.format(host, ", ".join(os or ['-'])))
 
 print('|')
 
-for ip in db:
-    services = host_services_detect(ip, db[ip]['ports'])
-    db[ip]['services'] = services
-    print('|- IP: {:15} services: {}'.format(ip, services or ['-']))
+for host in db:
+    services = host_services_detect(host, db[host]['ports'])
+    db[host]['services'] = services
+    print('|- Host: {:15} services: {}'.format(host, services or ['-']))
 
 print('|\n|\n|\n|- Here is a dump of db:')
 pprint(db)
