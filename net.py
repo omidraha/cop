@@ -11,9 +11,9 @@ Network Rules:
 """
 
 
-def host_whois(ip):
+def host_whois(host):
     cmd = 'whois {}'
-    output = run_process(cmd.format(ip))
+    output = run_process(cmd.format(host))
     address = ''
     whois = {}
     for line in output:
@@ -52,30 +52,30 @@ def host_whois(ip):
     return whois
 
 
-def check_host_is_up(ip, fast=True):
+def check_host_is_up(host, fast=True):
     cmd_f = 'nmap -n -sn -oG - -vvvvv --packet-trace {}'
     cmd_s = 'nmap -n -sn -PU161,162,40125 -PE -PS21-25,80,113,1050,35000,8000,8080,8081,3389,2323,2222,666,1336 ' \
             '-PA21-25,80,113,1050,35000,8000,8080,8081,3389,2323,2222,666,1336 -PY22,80,179,5060 ' \
             '-oG - -vvvvv --packet-trace {}'
 
-    ips = []
+    hosts = []
     if fast:
-        cmd = cmd_f.format(ip)
+        cmd = cmd_f.format(host)
     else:
-        cmd = cmd_s.format(ip)
+        cmd = cmd_s.format(host)
     output = run_process(cmd)
     for line in output:
         sp = line.split()
         if len(sp) != 5:
             continue
         if sp[-1].lower() == 'up':
-            ips.append(sp[1])
-    return ips
+            hosts.append(sp[1])
+    return hosts
 
 
-def host_dns_reverse(ip):
+def host_dns_reverse(host):
     cmd = 'nmap -Pn  -sL -oG - {}'
-    output = run_process(cmd.format(ip))
+    output = run_process(cmd.format(host))
     dns = ''
     for line in output:
         sep = line.split()
@@ -88,14 +88,14 @@ def host_dns_reverse(ip):
     return dns
 
 
-def host_port_discovery(ip, fast=True):
+def host_port_discovery(host, fast=True):
     cmd_f = 'nmap -n -Pn --top-ports 100 -oG - --open -vvvvv --packet-trace {}'
     cmd_s = 'nmap -n -Pn --top-ports 1000 -oG - --open -vvvvv --packet-trace {}'
     ports = []
     if fast:
-        cmd = cmd_f.format(ip)
+        cmd = cmd_f.format(host)
     else:
-        cmd = cmd_s.format(ip)
+        cmd = cmd_s.format(host)
     output = run_process(cmd)
     for line in output:
         sp = line.split('Ports: ')
@@ -111,13 +111,13 @@ def host_port_discovery(ip, fast=True):
     return ports
 
 
-def host_os_detect(ip, ports):
+def host_os_detect(host, ports):
     cmd_port = 'nmap -n -Pn -p{} -O -oG - -vvvvv --packet-trace {}'
     cmd_empty = 'nmap -n -Pn -O -oG - -vvvvv --packet-trace {}'
     if ports:
-        cmd = cmd_port.format(', '.join(ports), ip)
+        cmd = cmd_port.format(', '.join(ports), host)
     else:
-        cmd = cmd_empty.format(ip)
+        cmd = cmd_empty.format(host)
     output = run_process(cmd)
     os = []
     for line in output:
@@ -134,11 +134,11 @@ def host_os_detect(ip, ports):
     return os
 
 
-def host_services_detect(ip, ports):
+def host_services_detect(host, ports):
     if not ports:
         return []
     cmd_port = 'nmap -n -Pn -p{} -sV -oG - -vvvvv --packet-trace {}'
-    cmd = cmd_port.format(','.join(ports), ip)
+    cmd = cmd_port.format(','.join(ports), host)
     output = run_process(cmd)
     services = []
     for line in output:
@@ -152,6 +152,5 @@ def host_services_detect(ip, ports):
                 service = port_info.split('/')[4].strip('?')
                 services.append((port, service))
     return services
-
 
 
