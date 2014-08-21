@@ -70,7 +70,10 @@ print('|* DNS Zone Transfer  Checking ...')
 for domain in db['domains']:
     dtz = host_dns_zone_transfer(domain)
     db['domains'][domain]['dtz'] = dtz
-    print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
+    if dtz:
+        print('|-   {:20}'.format(domain))
+        for ns, t, v in dtz:
+            print('|-     \t{:30}\t{}\t{}'.format(ns, t, v))
 
 print('|')
 print('|* Whois IP ...')

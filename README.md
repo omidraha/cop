@@ -14,7 +14,7 @@
       * Getting Name Server records
       * Getting sub domains
         * DNS Zone Transfer
-        * DNS Brute forcing
+        * DNS Brute Forcing
     * Check host is up
     * Discover open ports
     * Detect os
