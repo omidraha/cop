@@ -21,10 +21,25 @@ def run_process(cmd, log=True):
 
 
 def check_tools():
-    tools = ['nmap', 'whois']
+    tools = ['nmap', 'whois', 'dig']
     tools_404 = []
     for tool in tools:
         output = run_process('which {}'.format(tool))[0]
         if not output:
             tools_404.append(tool)
     return tools_404
+
+
+def is_ip(host):
+    # @todo: improved
+    return host.replace('.', '').isdigit()
+
+
+def is_ip_range(host):
+    # @todo: improved
+    return host.replace('.', '').replace('-', '').replace('/', '').isdigit()
+
+
+def reverse_ip(ip):
+    return '.'.join(ip.split('.')[::-1])
+

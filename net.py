@@ -1,4 +1,4 @@
-from utility import run_process
+from utility import run_process, is_ip, reverse_ip, is_ip_range
 
 """
 Network Rules:
@@ -52,12 +52,35 @@ def host_whois(host):
     return whois
 
 
+def host_list(host):
+    # @todo, don't use nmap, move to utility
+    cmd = 'nmap -Pn -sn -n  -sL -oG - -vvvvv --packet-trace {}'
+    hosts = []
+    sep_ips = []
+    single_ips = []
+    domains = []
+    for each_host in host.split():
+        if is_ip(each_host) or is_ip_range(each_host):
+            sep_ips.append(each_host)
+        else:
+            domains.append(each_host)
+    output = run_process(cmd.format(" ".join(sep_ips)))
+    for line in output:
+        if line.lower().startswith('host:'):
+            sep = line.split()
+            single_ips.append(sep[1])
+
+    return single_ips, domains
+
+
 def check_host_is_up(host, fast=True):
     cmd_f = 'nmap -n -sn -oG - -vvvvv --packet-trace {}'
     cmd_s = 'nmap -n -sn -PU161,162,40125 -PE -PS21-25,80,113,1050,35000,8000,8080,8081,3389,2323,2222,666,1336 ' \
             '-PA21-25,80,113,1050,35000,8000,8080,8081,3389,2323,2222,666,1336 -PY22,80,179,5060 ' \
             '-oG - -vvvvv --packet-trace {}'
 
+    if isinstance(host, list):
+        host = " ".join(host)
     hosts = []
     if fast:
         cmd = cmd_f.format(host)
@@ -73,10 +96,37 @@ def check_host_is_up(host, fast=True):
     return hosts
 
 
-def host_dns_reverse(host):
-    cmd = 'nmap -Pn  -sL -oG - {}'
+def host_dns_lookup(host):
+    cmd = 'dig +short {}'
+    ips = []
+    if is_ip(host):
+        return ips
     output = run_process(cmd.format(host))
+    for line in output:
+        sep = line.strip()
+        if sep.startswith(';;'):
+            continue
+        if is_ip(sep):
+            ips.append(sep)
+    return ips
+
+
+def host_reverse_dns_lookup(host, use_dig=True):
+    cmd_nmap = 'nmap -Pn  -sL -oG - {}'
+    cmd_dig = 'dig +short {}.in-addr.arpa. PTR'
     dns = ''
+    if not is_ip(host):
+        return dns
+    # using dig
+    if use_dig:
+        output = run_process(cmd_dig.format(reverse_ip(host)))
+        if output:
+            sep = output[0].strip().strip('.')
+            if sep:
+                dns = sep
+        return dns
+    # using nmap
+    output = run_process(cmd_nmap.format(host))
     for line in output:
         sep = line.split()
         if len(sep) != 5 or sep[0].strip().lower() != 'host:':
@@ -86,6 +136,36 @@ def host_dns_reverse(host):
             dns = sep
             break
     return dns
+
+
+def host_name_server(host):
+    cmd = 'dig +short NS {}'
+    ns = []
+    if is_ip(host):
+        return ns
+    output = run_process(cmd.format(host))
+    for line in output:
+        sp = line.strip().strip('.')
+        if sp:
+            ns.append(sp)
+    return ns
+
+
+def host_dns_zone_transfer(host, ns=None):
+    cmd = 'dig @{} {} axfr'
+    dzt = []
+    if not ns:
+        ns = host_name_server(host)
+    for each_ns in ns:
+        c = cmd.format(each_ns, host)
+        output = run_process(c)
+        for line in output:
+            if line.startswith(';'):
+                continue
+            sep = line.strip().split()
+            dzt.append((sep[0], sep[3], " ".join(sep[4:])))
+
+    return dzt
 
 
 def host_port_discovery(host, fast=True):
