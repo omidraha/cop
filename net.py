@@ -2,12 +2,15 @@ from utility import run_process, is_ip, reverse_ip, is_ip_range
 
 """
 Network Rules:
-    1. Whois
-    2. Check host is up
-    3. Do reverse dns
-    4. Discover open ports
-    5. Detect os
-    6. Detect services
+    Whois IP
+    Performing DNS Lookup
+    Performing Reverse DNS Lookup
+    Getting Name Server records
+    DNS Zone Transfer Checking
+    Check host is up
+    Discover open ports
+    Detect os
+    Detect services
 """
 
 
