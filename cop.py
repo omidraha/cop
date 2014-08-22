@@ -39,7 +39,7 @@ if domains:
             print('|-   {:20}  {}'.format(domain, " ".join(dns_lookup) or '-'))
 
 print('|* Host alive checking ...')
-alive_ips = check_host_is_up(hosts, fast=True)
+alive_ips = check_host_is_up(hosts, fast=False)
 if alive_ips:
     len_host = len(alive_ips)
     for ip in alive_ips:
