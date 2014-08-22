@@ -107,7 +107,7 @@ def host_dns_lookup(host):
     output = run_process(cmd.format(host))
     for line in output:
         sep = line.strip()
-        if sep.startswith(';;'):
+        if sep.startswith(';'):
             continue
         if is_ip(sep):
             ips.append(sep)
@@ -125,7 +125,7 @@ def host_reverse_dns_lookup(host, use_dig=True):
         output = run_process(cmd_dig.format(reverse_ip(host)))
         if output:
             sep = output[0].strip().strip('.')
-            if sep:
+            if sep and not sep.startswith(';'):
                 dns = sep
         return dns
     # using nmap
@@ -135,7 +135,7 @@ def host_reverse_dns_lookup(host, use_dig=True):
         if len(sep) != 5 or sep[0].strip().lower() != 'host:':
             continue
         sep = sep[2].strip('()')
-        if sep:
+        if sep and not sep.startswith(';'):
             dns = sep
             break
     return dns
@@ -148,6 +148,8 @@ def host_name_server(host):
         return ns
     output = run_process(cmd.format(host))
     for line in output:
+        if line.startswith(';'):
+            continue
         sp = line.strip().strip('.')
         if sp:
             ns.append(sp)
