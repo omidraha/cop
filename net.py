@@ -165,9 +165,11 @@ def host_dns_zone_transfer(host, ns=None):
         c = cmd.format(each_ns, host)
         output = run_process(c)
         for line in output:
-            if line.startswith(';'):
+            if line.startswith(';') or line.startswith('dig:'):
                 continue
             sep = line.strip().split()
+            if len(sep) < 5:
+                continue
             dzt.append((sep[0], sep[3], " ".join(sep[4:])))
 
     return dzt
