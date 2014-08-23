@@ -1,3 +1,5 @@
+import random
+import string
 import subprocess
 import logging
 
@@ -43,3 +45,7 @@ def is_ip_range(host):
 def reverse_ip(ip):
     return '.'.join(ip.split('.')[::-1])
 
+
+def generate_chars(length=8, lower=True):
+    chars = string.ascii_lowercase if lower else string.ascii_letters
+    return "".join(random.choice(chars) for _ in range(length))

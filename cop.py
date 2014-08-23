@@ -1,10 +1,13 @@
 #! /usr/bin/python
 # @todo: change to command line arguments
 from pprint import pprint
-import settings
-from net import check_host_is_up, host_port_discovery, host_os_detect, host_reverse_dns_lookup, \
-    host_services_detect, host_whois, host_name_server, host_dns_lookup, host_dns_zone_transfer, host_list
-from utility import check_tools
+from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
+    host_dns_wildcard
+from apps.info import host_whois
+
+from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
+    host_services_detect, host_list
+from apps.utility import check_tools
 
 
 print("+ Call Of Penetration Tool version 0.1")
@@ -66,14 +69,20 @@ for domain in db['domains']:
     print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
 
 print('|')
-print('|* DNS Zone Transfer  Checking ...')
+print('|* Getting Name Server records ...')
 for domain in db['domains']:
-    dtz = host_dns_zone_transfer(domain)
-    db['domains'][domain]['dtz'] = dtz
-    if dtz:
-        print('|-   {:20}'.format(domain))
-        for ns, t, v in dtz:
-            print('|-     \t{:30}\t{}\t{}'.format(ns, t, v))
+    ns = host_name_server(domain)
+    db['domains'][domain]['ns'] = ns
+    print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
+
+print('|')
+print('|* Checking Wildcard DNS ...')
+for domain in db['domains']:
+    wildcard_dns = host_dns_wildcard(domain)
+    db['domains'][domain]['wildcard_dns'] = wildcard_dns
+    if wildcard_dns:
+        for ns, t, v in wildcard_dns:
+            print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
 
 print('|')
 print('|* Whois IP ...')
