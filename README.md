@@ -1,6 +1,6 @@
 # Call Of Penetration (cop!)
 
-## Doing some penetration task automatically.
+## Doing some penetration testing automatically.
 
 
 * Information Gathering Rules:
