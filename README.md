@@ -17,7 +17,7 @@
     * Detect os
     * Detect services
  * Tools:
-   * nmap, whois
+   * nmap
 * Dns Rules:
   * Tasks:
       * Performing DNS Lookup
