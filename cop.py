@@ -31,15 +31,10 @@ def get_domain(ip):
         for each_ip in db['domains'][domain]['dns_lookup']:
             if each_ip == ip:
                 return domain
+    for each_ip in db['ips']:
+        if each_ip == ip:
+            return db['ips'][each_ip].get('reverse_dns_lookup')
 
-
-if domains:
-    print('|* Performing DNS Lookup ...')
-    for domain in domains:
-        dns_lookup = host_dns_lookup(domain)
-        if dns_lookup:
-            db['domains'][domain] = {'dns_lookup': dns_lookup}
-            print('|-   {:20}  {}'.format(domain, " ".join(dns_lookup) or '-'))
 
 print('|* Host alive checking ...')
 alive_ips = check_host_is_up(input_host, fast=False)
@@ -53,20 +48,21 @@ else:
     print('|- Nothing to do !')
     exit()
 
+if domains:
+    print('|* Performing DNS Lookup ...')
+    for domain in domains:
+        dns_lookup = host_dns_lookup(domain)
+        if dns_lookup:
+            db['domains'][domain] = {'dns_lookup': dns_lookup}
+            print('|-   {:20}  {}'.format(domain, " ".join(dns_lookup) or '-'))
+
 print('|')
 print('|* Performing Reverse DNS Lookup ...')
 for ip in db['ips']:
     dns_r = host_reverse_dns_lookup(ip)
     if dns_r:
         db['ips'][ip]['reverse_dns_lookup'] = dns_r
-        print('|-   {:20}  {}'.format(ip, dns_r or '-'))
-
-print('|')
-print('|* Getting Name Server records ...')
-for domain in db['domains']:
-    ns = host_name_server(domain)
-    db['domains'][domain]['ns'] = ns
-    print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
+        print('|-   {:16}  {}'.format(ip, dns_r or '-'))
 
 print('|')
 print('|* Getting Name Server records ...')
@@ -90,30 +86,35 @@ for ip in db['ips']:
     # @todo adding seen whois list, according to net range
     whois = host_whois(ip)
     db['ips'][ip]['whois'] = whois
-    print('|-   {:20} '.format(ip))
+    d = get_domain(ip)
+    print('|-   {:16}{}\n|'.format(ip, '({})'.format(d) if d else ''))
     print('|  \t\t\t\t' + '\n|\t\t\t\t'.join(['{}: {}'.format(k, v \
-        if type(v) == str else "-".join(v)) for k, v in whois.iteritems()]))
+        if type(v) == str else "-".join(v)) for k, v in whois.iteritems()]) + '\n|')
 
 print('|')
 print('|* Discover open ports ...')
 for ip in db['ips']:
-    ports = host_port_discovery(ip, fast=False)
+    ports = host_port_discovery(ip, fast=True)
     db['ips'][ip]['ports'] = ports
-    print('|-   {:20}  {}'.format(ip, ", ".join(ports or ['-'])))
+    d = get_domain(ip)
+    print('|-   {:16}{}  TCP:{}   UDP:{}'.format(ip, '({})'.format(d) if d else '', ", ".join(ports['tcp'] or ['-']),
+                                                 ", ".join(ports['udp'] or ['-'])))
 
 print('|')
 print('|* Detect os ...')
 for ip in db['ips']:
     os = host_os_detect(ip, db['ips'][ip]['ports'])
     db['ips'][ip]['os'] = os
-    print('|-   {:20}  {}'.format(ip, ", ".join(os or ['-'])))
+    d = get_domain(ip)
+    print('|-   {:16}{}  {}'.format(ip, '({})'.format(d) if d else '', ", ".join(os or ['-'])))
 
 print('|')
 print('|* Detect services ...')
 for ip in db['ips']:
     services = host_services_detect(ip, db['ips'][ip]['ports'])
     db['ips'][ip]['services'] = services
-    print('|  - {:20}  {}'.format(ip, services or ['-']))
+    d = get_domain(ip)
+    print('|  - {:16}{}  {}'.format(ip, '({})'.format(d) if d else '', services or ['-']))
 
 print('|\n|\n|\n|- Here is a dump of db:')
 pprint(db)
