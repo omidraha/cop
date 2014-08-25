@@ -13,9 +13,9 @@
 * Network Rules:
  * Tasks:
     * Check host is up
-    * Discover open ports
+    * Discover open `TCP` and `UDP` ports
     * Detect os
-    * Detect services
+    * Detect services with version info
  * Tools:
    * nmap
 * Dns Rules:
