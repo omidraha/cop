@@ -10,7 +10,11 @@ from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
 from apps.utility import check_tools
 
 
-print("+ Call Of Penetration Tool version 0.1")
+def print_header(text):
+    print('\033[1;34m|*\033[1;m {}'.format(text))
+
+
+print("\033[1;32m|+\033[1;m Call Of Penetration Tool version 0.1")
 tools_404 = check_tools()
 if tools_404:
     print('|- Some tools, not found. at first call them !')
@@ -36,7 +40,7 @@ def get_domain(ip):
             return db['ips'][each_ip].get('reverse_dns_lookup')
 
 
-print('|* Host alive checking ...')
+print_header('Host alive checking ...')
 alive_ips = check_host_is_up(input_host, fast=False)
 if alive_ips:
     len_host = len(alive_ips)
@@ -49,7 +53,7 @@ else:
     exit()
 
 if domains:
-    print('|* Performing DNS Lookup ...')
+    print_header('Performing DNS Lookup ...')
     for domain in domains:
         dns_lookup = host_dns_lookup(domain)
         if dns_lookup:
@@ -57,7 +61,7 @@ if domains:
             print('|-   {:20}  {}'.format(domain, " ".join(dns_lookup) or '-'))
 
 print('|')
-print('|* Performing Reverse DNS Lookup ...')
+print_header('Reverse DNS Lookup ...')
 for ip in db['ips']:
     dns_r = host_reverse_dns_lookup(ip)
     if dns_r:
@@ -65,7 +69,7 @@ for ip in db['ips']:
         print('|-   {:16}  {}'.format(ip, dns_r or '-'))
 
 print('|')
-print('|* Getting Name Server records ...')
+print_header('Getting Name Server records ...')
 for domain in db['domains']:
     ns = host_name_server(domain)
     db['domains'][domain]['ns'] = ns
@@ -73,7 +77,7 @@ for domain in db['domains']:
         print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
 
 print('|')
-print('|* Getting any type of ns record information ...')
+print_header('Getting any type of ns record information ...')
 for domain in db['domains']:
     dns_any_r = host_dns_any_query(domain)
     db['domains'][domain]['dns_any_records'] = dns_any_r
@@ -82,7 +86,7 @@ for domain in db['domains']:
             print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
 
 print('|')
-print('|* Checking DNSSEC ...')
+print_header('Checking DNSSEC ...')
 for domain in db['domains']:
     dnssec = host_dnssec(domain)
     db['domains'][domain]['dnssec'] = dnssec
@@ -91,7 +95,7 @@ for domain in db['domains']:
             print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
 
 print('|')
-print('|* Checking Wildcard DNS ...')
+print_header('Checking Wildcard DNS ...')
 for domain in db['domains']:
     wildcard_dns = host_dns_wildcard(domain)
     db['domains'][domain]['wildcard_dns'] = wildcard_dns
@@ -100,7 +104,7 @@ for domain in db['domains']:
             print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
 
 print('|')
-print('|* DNS Zone Transfer Checking ...')
+print_header('DNS Zone Transfer Checking ...')
 for domain in db['domains']:
     dtz = host_dns_zone_transfer(domain)
     db['domains'][domain]['dtz'] = dtz
@@ -110,7 +114,7 @@ for domain in db['domains']:
             print('|- \t{:30}\t{}\t{}'.format(ns, t, v))
 
 print('|')
-print('|* Whois IP ...')
+print_header('Whois IP ...')
 for ip in db['ips']:
     # @todo adding seen whois list, according to net range
     whois = host_whois(ip)
@@ -121,7 +125,7 @@ for ip in db['ips']:
         if type(v) == str else "-".join(v)) for k, v in whois.iteritems()]) + '\n|')
 
 print('|')
-print('|* Discover open ports ...')
+print_header('Discover open ports ...')
 for ip in db['ips']:
     ports = host_port_discovery(ip, fast=True)
     db['ips'][ip]['ports'] = ports
@@ -130,7 +134,7 @@ for ip in db['ips']:
                                                  ", ".join(ports['udp'] or ['-'])))
 
 print('|')
-print('|* Detect os ...')
+print_header('Detect os ...')
 for ip in db['ips']:
     os = host_os_detect(ip, db['ips'][ip]['ports'])
     db['ips'][ip]['os'] = os
@@ -138,7 +142,7 @@ for ip in db['ips']:
     print('|-   {:16}{}  {}'.format(ip, '({})'.format(d) if d else '', ", ".join(os or ['-'])))
 
 print('|')
-print('|* Detect services ...')
+print_header('Detect services ...')
 for ip in db['ips']:
     services = host_services_detect(ip, db['ips'][ip]['ports'])
     db['ips'][ip]['services'] = services
