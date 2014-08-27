@@ -2,15 +2,6 @@ import random
 import string
 from apps.utility import run_process, is_ip, reverse_ip, generate_chars
 
-"""
-DNS Rules:
-    Performing DNS Lookup
-    Performing Reverse DNS Lookup
-    Getting Name Server records
-    DNS Wildcards Checking
-    DNS Zone Transfer Checking
-"""
-
 
 def host_dns_lookup(host):
     cmd = 'dig +short {}'
@@ -67,6 +58,39 @@ def host_name_server(host):
         if sp:
             ns.append(sp)
     return ns
+
+
+def host_dns_any_query(host):
+    cmd = 'dig +nocomments +nostats +nocmd +noquestion  any {}'
+    dns_any_r = []
+    if is_ip(host):
+        return dns_any_r
+    output = run_process(cmd.format(host))
+    for line in output:
+        if line.startswith(';') or line.startswith('dig:'):
+            continue
+        sep = line.strip().split()
+        if len(sep) < 4:
+            continue
+        dns_any_r.append((sep[0], sep[3], " ".join(sep[4:])))
+    return dns_any_r
+
+
+def host_dnssec(host):
+    cmd = 'dig +nocomments +nostats +nocmd +noquestion -t dnskey {}'
+    dnssec = []
+    if is_ip(host):
+        return dnssec
+    output = run_process(cmd.format(host))
+    for line in output:
+        if line.startswith(';') or line.startswith('dig:'):
+            continue
+        sep = line.strip().split()
+        if len(sep) < 4:
+            continue
+        if sep[3].lower() == 'dnskey':
+            dnssec.append((sep[0], sep[3], " ".join(sep[4:])))
+    return dnssec
 
 
 def host_dns_wildcard(host):

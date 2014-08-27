@@ -1,14 +1,5 @@
 from apps.utility import run_process, is_ip, is_ip_range
 
-"""
-Network Rules:
-    Whois IP
-    Check host is up
-    Discover open ports
-    Detect os
-    Detect services
-"""
-
 
 def host_list(host):
     # @todo, don't use nmap, move to utility

@@ -2,7 +2,7 @@
 # @todo: change to command line arguments
 from pprint import pprint
 from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
-    host_dns_wildcard
+    host_dns_wildcard, host_dns_any_query, host_dnssec
 from apps.info import host_whois
 
 from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
@@ -69,7 +69,26 @@ print('|* Getting Name Server records ...')
 for domain in db['domains']:
     ns = host_name_server(domain)
     db['domains'][domain]['ns'] = ns
-    print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
+    if ns:
+        print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
+
+print('|')
+print('|* Getting any type of ns record information ...')
+for domain in db['domains']:
+    dns_any_r = host_dns_any_query(domain)
+    db['domains'][domain]['dns_any_records'] = dns_any_r
+    if dns_any_r:
+        for ns, t, v in dns_any_r:
+            print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
+
+print('|')
+print('|* Checking DNSSEC ...')
+for domain in db['domains']:
+    dnssec = host_dnssec(domain)
+    db['domains'][domain]['dnssec'] = dnssec
+    if dnssec:
+        for ns, t, v in dnssec:
+            print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
 
 print('|')
 print('|* Checking Wildcard DNS ...')

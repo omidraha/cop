@@ -23,6 +23,8 @@
       * Performing DNS Lookup
       * Performing Reverse DNS Lookup
       * Getting Name Server records
+      * Getting any type of ns record information
+      * Checking DNSSEC
       * Checking Wildcard DNS
       * Checking DNS Zone Transfer
  * Tools:
