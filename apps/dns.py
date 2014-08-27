@@ -144,6 +144,6 @@ def host_dns_check_allow_recursion(host, ns=None):
         for line in output:
             if not line.startswith(';; flags:'):
                 continue
-            if 'ra' in line.split(';')[2].strip('  flags:').split():
+            if 'ra' in line.split(';')[2].split()[1:]:
                 dr.append(each_ns)
     return dr
