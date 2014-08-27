@@ -1,5 +1,6 @@
 #! /usr/bin/python
 # @todo: change to command line arguments
+import os
 from pprint import pprint
 from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
     host_dns_wildcard, host_dns_any_query, host_dnssec
@@ -19,6 +20,9 @@ tools_404 = check_tools()
 if tools_404:
     print('|- Some tools, not found. at first call them !')
     print('|- Here is an list of them: {}'.format(",".join(tools_404)))
+    exit()
+if os.geteuid() != 0:
+    print('|- You need root permissions to do this !')
     exit()
 
 input_host = raw_input("|- Enter ip(s)/domain(s) to kick off: ")
