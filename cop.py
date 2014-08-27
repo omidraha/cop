@@ -22,7 +22,7 @@ if tools_404:
     print('|- Here is an list of them: {}'.format(",".join(tools_404)))
     exit()
 if os.geteuid() != 0:
-    print('|- You need root permissions to do this !')
+    print('|- You need power of root permissions to do this !')
     exit()
 
 input_host = raw_input("|- Enter ip(s)/domain(s) to kick off: ")
