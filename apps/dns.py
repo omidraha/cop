@@ -132,3 +132,18 @@ def host_dns_zone_transfer(host, ns=None):
 
     return dzt
 
+
+def host_dns_check_allow_recursion(host, ns=None):
+    cmd = 'dig any @{}'
+    dr = []
+    if not ns:
+        ns = host_name_server(host)
+    for each_ns in ns:
+        c = cmd.format(each_ns)
+        output = run_process(c)
+        for line in output:
+            if not line.startswith(';; flags:'):
+                continue
+            if 'ra' in line.split(';')[2].strip('  flags:').split():
+                dr.append(each_ns)
+    return dr

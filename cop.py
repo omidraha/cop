@@ -3,7 +3,7 @@
 import os
 from pprint import pprint
 from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
-    host_dns_wildcard, host_dns_any_query, host_dnssec
+    host_dns_wildcard, host_dns_any_query, host_dnssec, host_dns_check_allow_recursion
 from apps.info import host_whois
 
 from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
@@ -90,6 +90,16 @@ for domain in db['domains']:
             print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
 
 print('|')
+print_header('Checking dns allow recursion ...')
+for domain in db['domains']:
+    ns = db['domains'][domain]['ns']
+    dr = host_dns_check_allow_recursion(domain, ns)
+    db['domains'][domain]['dr'] = dr
+    if dr:
+        for each_dr in dr:
+            print('|-     \t{:35}'.format(each_dr))
+
+print('|')
 print_header('Checking DNSSEC ...')
 for domain in db['domains']:
     dnssec = host_dnssec(domain)
@@ -110,7 +120,8 @@ for domain in db['domains']:
 print('|')
 print_header('DNS Zone Transfer Checking ...')
 for domain in db['domains']:
-    dtz = host_dns_zone_transfer(domain)
+    ns = db['domains'][domain]['ns']
+    dtz = host_dns_zone_transfer(domain, ns)
     db['domains'][domain]['dtz'] = dtz
     if dtz:
         print('|- {:20}'.format(domain))
