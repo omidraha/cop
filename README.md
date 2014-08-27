@@ -20,12 +20,13 @@
    * nmap
 * Dns Rules:
   * Tasks:
-      * Performing DNS Lookup
-      * Performing Reverse DNS Lookup
-      * Getting Name Server records
+      * Performing dns lookup
+      * Performing reverse dns lookup
+      * Getting name server records
       * Getting any type of ns record information
-      * Checking DNSSEC
-      * Checking Wildcard DNS
-      * Checking DNS Zone Transfer
+      * Checking dnssec
+      * Checking wildcard dns
+      * Checking dns allow recursion
+      * Checking dns zone transfer
  * Tools:
    * dig
