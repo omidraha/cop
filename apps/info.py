@@ -42,7 +42,7 @@ def host_whois(host):
             whois['city'] = " ".join(sep[1:])
 
     if address:
-        whois['address'] = address
+        whois['address'] = address.strip()
 
     return whois
 

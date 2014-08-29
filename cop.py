@@ -8,24 +8,22 @@ from apps.info import host_whois
 
 from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
     host_services_detect, host_list
-from apps.utility import check_tools
+from apps.utility import check_tools, print_line
+import settings
 
 
-def print_header(text):
-    print('\033[1;34m|*\033[1;m {}'.format(text))
-
-
-print("\033[1;32m|+\033[1;m Call Of Penetration Tool version 0.1")
+print_line('Call Of Penetration Tool version 0.1', pre='|+')
 tools_404 = check_tools()
 if tools_404:
-    print('|- Some tools, not found. at first call them !')
-    print('|- Here is an list of them: {}'.format(",".join(tools_404)))
+    print_line('Some tools, not found. at first call them !', pre='|-')
+    print_line('Here is an list of them: {}'.format(",".join(tools_404)), pre='|-')
     exit()
 if os.geteuid() != 0:
-    print('|- You need power of root permissions to do this !')
+    print_line('You need power of root permissions to do this !', pre='|-')
     exit()
 
-input_host = raw_input("|- Enter ip(s)/domain(s) to kick off: ")
+print_line('Enter ip(s)/domain(s) to kick off: ', pre='|-', end='', wrap=False)
+input_host = raw_input()
 
 ips, domains = host_list(input_host)
 
@@ -44,127 +42,124 @@ def get_domain(ip):
             return db['ips'][each_ip].get('reverse_dns_lookup')
 
 
-print_header('Host alive checking ...')
+print_line('Host alive checking ...', pre='|*')
 alive_ips = check_host_is_up(input_host, fast=False)
+
 if alive_ips:
     len_host = len(alive_ips)
     for ip in alive_ips:
         db['ips'][ip] = {}
-        print('|-   {:20}'.format(get_domain(ip) or ip))
-    print('|-   {} Host{} up.'.format(len_host, 's' if len_host > 1 else ''))
+        print_line('{}'.format(get_domain(ip) or ip), color_code=195, tab=1)
+    print_line('{} Host{} up.'.format(len_host, 's' if len_host > 1 else ''), color_code=195, tab=1)
 else:
-    print('|- Nothing to do !')
+    print_line(' Nothing to do !')
     exit()
 
 if domains:
-    print_header('Performing DNS Lookup ...')
+    print_line('Performing DNS Lookup ...', pre='|*')
     for domain in domains:
         dns_lookup = host_dns_lookup(domain)
         if dns_lookup:
             db['domains'][domain] = {'dns_lookup': dns_lookup}
-            print('|-   {:20}  {}'.format(domain, " ".join(dns_lookup) or '-'))
+            print_line(domain, color_code=87, tab=1)
+            print_line(dns_lookup, color_code=195, tab=2)
 
-print('|')
-print_header('Reverse DNS Lookup ...')
+print_line('Reverse DNS Lookup ...', pre='|*')
 for ip in db['ips']:
     dns_r = host_reverse_dns_lookup(ip)
     if dns_r:
         db['ips'][ip]['reverse_dns_lookup'] = dns_r
-        print('|-   {:16}  {}'.format(ip, dns_r or '-'))
+        print_line(ip, color_code=87, tab=1)
+        print_line(dns_r, color_code=195, tab=2)
 
-print('|')
-print_header('Getting Name Server records ...')
+print_line('Getting Name Server records ...', pre='|*')
 for domain in db['domains']:
     ns = host_name_server(domain)
-    db['domains'][domain]['ns'] = ns
     if ns:
-        print('|-   {:20}  {}'.format(domain, ", ".join(ns or ['-'])))
+        db['domains'][domain]['ns'] = ns
+        print_line(domain, color_code=87, tab=1)
+        print_line(ns, color_code=195, tab=2)
 
-print('|')
-print_header('Getting any type of ns record information ...')
+print_line('Getting any type of ns record information ...', pre='|*')
 for domain in db['domains']:
     dns_any_r = host_dns_any_query(domain)
-    db['domains'][domain]['dns_any_records'] = dns_any_r
     if dns_any_r:
-        for ns, t, v in dns_any_r:
-            print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
+        db['domains'][domain]['dns_any_records'] = dns_any_r
+        print_line(domain, color_code=87, tab=1)
+        print_line(dns_any_r, color_code=195, tab=2)
 
-print('|')
-print_header('Checking dns allow recursion ...')
+print_line('Checking DNS Allow Recursion ...', pre='|*')
 for domain in db['domains']:
     ns = db['domains'][domain]['ns']
     dr = host_dns_check_allow_recursion(domain, ns)
-    db['domains'][domain]['dr'] = dr
     if dr:
-        for each_dr in dr:
-            print('|-     \t{:35}'.format(each_dr))
+        db['domains'][domain]['dr'] = dr
+        print_line(domain, color_code=87, tab=1)
+        print_line(dr, color_code=195, tab=2)
 
-print('|')
-print_header('Checking DNSSEC ...')
+print_line('Checking DNSSEC ...', pre='|*')
 for domain in db['domains']:
     dnssec = host_dnssec(domain)
-    db['domains'][domain]['dnssec'] = dnssec
     if dnssec:
-        for ns, t, v in dnssec:
-            print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
+        db['domains'][domain]['dnssec'] = dnssec
+        print_line(domain, color_code=87, tab=1)
+        print_line(dnssec, color_code=195, tab=2)
 
-print('|')
-print_header('Checking Wildcard DNS ...')
+print_line('Checking Wildcard DNS ...', pre='|*')
 for domain in db['domains']:
     wildcard_dns = host_dns_wildcard(domain)
-    db['domains'][domain]['wildcard_dns'] = wildcard_dns
     if wildcard_dns:
-        for ns, t, v in wildcard_dns:
-            print('|-     \t{:35}\t{}\t{}'.format(ns, t, v))
+        db['domains'][domain]['wildcard_dns'] = wildcard_dns
+        print_line(domain, color_code=87, tab=1)
+        print_line(wildcard_dns, color_code=195, tab=2)
 
-print('|')
-print_header('DNS Zone Transfer Checking ...')
+print_line('DNS Zone Transfer Checking ...', pre='|*')
 for domain in db['domains']:
     ns = db['domains'][domain]['ns']
     dtz = host_dns_zone_transfer(domain, ns)
-    db['domains'][domain]['dtz'] = dtz
     if dtz:
-        print('|- {:20}'.format(domain))
-        for ns, t, v in dtz:
-            print('|- \t{:30}\t{}\t{}'.format(ns, t, v))
+        db['domains'][domain]['dtz'] = dtz
+        print_line(domain, color_code=87, tab=1)
+        print_line(dtz, color_code=195, tab=2)
 
-print('|')
-print_header('Whois IP ...')
+print_line('Whois IP ...', pre='|*')
 for ip in db['ips']:
     # @todo adding seen whois list, according to net range
     whois = host_whois(ip)
-    db['ips'][ip]['whois'] = whois
-    d = get_domain(ip)
-    print('|-   {:16}{}\n|'.format(ip, '({})'.format(d) if d else ''))
-    print('|  \t\t\t\t' + '\n|\t\t\t\t'.join(['{}: {}'.format(k, v \
-        if type(v) == str else "-".join(v)) for k, v in whois.iteritems()]) + '\n|')
+    if whois:
+        db['ips'][ip]['whois'] = whois
+        d = get_domain(ip)
+        print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+        print_line(whois, color_code=195, tab=2)
 
-print('|')
-print_header('Discover open ports ...')
+print_line('Discover open ports ...', pre='|*')
 for ip in db['ips']:
     ports = host_port_discovery(ip, fast=True)
-    db['ips'][ip]['ports'] = ports
-    d = get_domain(ip)
-    print('|-   {:16}{}  TCP:{}   UDP:{}'.format(ip, '({})'.format(d) if d else '', ", ".join(ports['tcp'] or ['-']),
-                                                 ", ".join(ports['udp'] or ['-'])))
+    if ports:
+        db['ips'][ip]['ports'] = ports
+        d = get_domain(ip)
+        print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+        print_line(ports, color_code=195, tab=2)
 
-print('|')
-print_header('Detect os ...')
+print_line('Detect os ...', pre='|*')
 for ip in db['ips']:
     os = host_os_detect(ip, db['ips'][ip]['ports'])
-    db['ips'][ip]['os'] = os
-    d = get_domain(ip)
-    print('|-   {:16}{}  {}'.format(ip, '({})'.format(d) if d else '', ", ".join(os or ['-'])))
+    if os:
+        db['ips'][ip]['os'] = os
+        d = get_domain(ip)
+        print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+        print_line(os, color_code=195, tab=2)
 
-print('|')
-print_header('Detect services ...')
+print_line('Detect services ...', pre='|*')
 for ip in db['ips']:
     services = host_services_detect(ip, db['ips'][ip]['ports'])
-    db['ips'][ip]['services'] = services
-    d = get_domain(ip)
-    print('|  - {:16}{}  {}'.format(ip, '({})'.format(d) if d else '', services or ['-']))
+    if services:
+        db['ips'][ip]['services'] = services
+        d = get_domain(ip)
+        print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+        print_line(services, color_code=195, tab=2)
 
-print('|\n|\n|\n|- Here is a dump of db:')
+print_line('Here is a dump of db:\n\n', color_code=195)
 pprint(db)
-print("|\n|\n|- That's it.")
+print_line("\n\nThat's it.", color_code=195)
 

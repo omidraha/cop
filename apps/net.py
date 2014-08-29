@@ -3,7 +3,7 @@ from apps.utility import run_process, is_ip, is_ip_range
 
 def host_list(host):
     # @todo, don't use nmap, move to utility
-    cmd = 'nmap -Pn -sn -n  -sL -oG - -vvvvv --packet-trace {}'
+    cmd = 'nmap -Pn -sn -n  -sL -oG - -oN - -vvvvv --packet-trace {}'
     hosts = []
     sep_ips = []
     single_ips = []
@@ -13,7 +13,7 @@ def host_list(host):
             sep_ips.append(each_host)
         else:
             domains.append(each_host)
-    output = run_process(cmd.format(" ".join(sep_ips)))
+    output = run_process(cmd.format(" ".join(sep_ips)), console=False)
     for line in output:
         if line.lower().startswith('host:'):
             sep = line.split()
@@ -23,10 +23,10 @@ def host_list(host):
 
 
 def check_host_is_up(host, fast=True):
-    cmd_f = 'nmap -n -sn -oG - -vvvvv --packet-trace {}'
+    cmd_f = 'nmap -n -sn -oG - -oN - -vvvvv --packet-trace {}'
     cmd_s = 'nmap -n -sn -PU53,161,162,40125 -PE -PS21-25,80,113,1050,35000,8000,8080,8081,3389,2323,2222,666,1336 ' \
             '-PA21-25,80,113,1050,35000,8000,8080,8081,3389,2323,2222,666,1336 -PY22,80,179,5060 ' \
-            '-oG - -vvvvv --packet-trace {}'
+            '-oG - -oN - -vvvvv --packet-trace {}'
 
     if isinstance(host, list):
         host = " ".join(host)
@@ -46,9 +46,9 @@ def check_host_is_up(host, fast=True):
 
 
 def host_port_discovery(host, fast=True):
-    cmd_f = 'nmap -n -Pn  -sTU --top-ports 100 -oG - --open -vvvvv --packet-trace {}'
-    cmd_s = 'nmap -n -Pn  -sTU --top-ports 1000 -oG - --open -vvvvv --packet-trace {}'
-    ports = {'tcp': [], 'udp': []}
+    cmd_f = 'nmap -n -Pn  -sTU --top-ports 100 -oG - -oN - --open -vvvvv --packet-trace {}'
+    cmd_s = 'nmap -n -Pn  -sTU --top-ports 1000 -oG - -oN - --open -vvvvv --packet-trace {}'
+    ports = {}
     if fast:
         cmd = cmd_f.format(host)
     else:
@@ -65,29 +65,29 @@ def host_port_discovery(host, fast=True):
             if len(sp_2) != 5:
                 continue
             if sp_2[2].lower() == 'udp' and sp_2[1].lower() == 'open':
-                ports['udp'].append(sp_2[0])
+                ports.setdefault('udp', []).append(sp_2[0])
             elif sp_2[2].lower() == 'tcp' and sp_2[1].lower() == 'open':
-                ports['tcp'].append(sp_2[0])
+                ports.setdefault('tcp', []).append(sp_2[0])
     return ports
 
 
 def host_os_detect(host, ports):
-    cmd_port_tu = 'nmap -n -Pn -sTU -p T:{},U:{} -O -oG - -vvvvv --packet-trace {}'
-    cmd_port_t = 'nmap -n -Pn -sT -p T:{} -O -oG - -vvvvv --packet-trace {}'
-    cmd_port_u = 'nmap -n -Pn -sU -p U:{} -O -oG - -vvvvv --packet-trace {}'
+    cmd_port_tu = 'nmap -n -Pn -sTU -p T:{},U:{} -O -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_port_t = 'nmap -n -Pn -sT -p T:{} -O -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_port_u = 'nmap -n -Pn -sU -p U:{} -O -oG - -oN - -vvvvv --packet-trace {}'
     cmd_empty = 'nmap -n -Pn -O -oG - -vvvvv --packet-trace {}'
-    if ports['tcp'] and ports['udp']:
+    if 'tcp' in ports and 'udp' in ports:
         cmd = cmd_port_tu.format(','.join(ports['tcp']), ','.join(ports['udp']), host)
-    elif ports['tcp']:
+    elif 'tcp' in ports:
         cmd = cmd_port_t.format(','.join(ports['tcp']), host)
-    elif ports['udp']:
+    elif 'udp' in ports:
         cmd = cmd_port_u.format(','.join(ports['udp']), host)
     else:
         cmd = cmd_empty.format(host)
     output = run_process(cmd)
     os = []
     for line in output:
-        sp = line.split('OS:')
+        sp = line.split('OS: ')
         if len(sp) < 2:
             continue
         sp = sp[1].strip().split(',')
@@ -103,15 +103,15 @@ def host_os_detect(host, ports):
 def host_services_detect(host, ports):
     if not ports:
         return []
-    cmd_port_tu = 'nmap -n -Pn  -sTU -p T:{},U:{} -sV -oG - -vvvvv --packet-trace {}'
-    cmd_port_t = 'nmap -n -Pn  -sT -p T:{} -sV -oG - -vvvvv --packet-trace {}'
-    cmd_port_u = 'nmap -n -Pn  -sU -p U:{} -sV -oG - -vvvvv --packet-trace {}'
-    cmd_empty = 'nmap -n -Pn  -sV -oG - -vvvvv --packet-trace {}'
-    if ports['tcp'] and ports['udp']:
+    cmd_port_tu = 'nmap -n -Pn  -sTU -p T:{},U:{} -sV -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_port_t = 'nmap -n -Pn  -sT -p T:{} -sV -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_port_u = 'nmap -n -Pn  -sU -p U:{} -sV -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_empty = 'nmap -n -Pn  -sV -oG - -oN - -vvvvv --packet-trace {}'
+    if 'tcp' in ports and 'udp' in ports:
         cmd = cmd_port_tu.format(','.join(ports['tcp']), ','.join(ports['udp']), host)
-    elif ports['tcp']:
+    elif 'tcp' in ports:
         cmd = cmd_port_t.format(','.join(ports['tcp']), host)
-    elif ports['udp']:
+    elif 'udp' in ports:
         cmd = cmd_port_u.format(','.join(ports['udp']), host)
     else:
         cmd = cmd_empty.format(host)
@@ -124,9 +124,9 @@ def host_services_detect(host, ports):
         sp = sp[1]
         for port_info in sp.split(','):
             if port_info.split('/')[1].lower() == 'open':
-                port = port_info.split('/')[0]
-                service = port_info.split('/')[4].strip('?')
-                version = port_info.split('/')[6].strip('?')
+                port = port_info.split('/')[0].strip()
+                service = port_info.split('/')[4].strip('?').strip()
+                version = port_info.split('/')[6].strip('?').strip()
                 services.append((port, service, version))
     return services
 
