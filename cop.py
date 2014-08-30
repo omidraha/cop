@@ -90,7 +90,7 @@ for domain in db['domains']:
 
 print_line('Checking DNS Allow Recursion ...', pre='|*')
 for domain in db['domains']:
-    ns = db['domains'][domain]['ns']
+    ns = db['domains'][domain].get('ns')
     dr = host_dns_check_allow_recursion(domain, ns)
     if dr:
         db['domains'][domain]['dr'] = dr
@@ -115,7 +115,7 @@ for domain in db['domains']:
 
 print_line('DNS Zone Transfer Checking ...', pre='|*')
 for domain in db['domains']:
-    ns = db['domains'][domain]['ns']
+    ns = db['domains'][domain].get('ns')
     dtz = host_dns_zone_transfer(domain, ns)
     if dtz:
         db['domains'][domain]['dtz'] = dtz
