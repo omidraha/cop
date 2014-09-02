@@ -13,7 +13,9 @@
 * Network Rules:
  * Tasks:
     * Check host is up
-    * Discover open `TCP` and `UDP` ports
+    * Discover states of `TCP` and `UDP` ports including: `open`, `closed`,
+                                                          `filtered`, `unfiltered`,
+                                                          `open|filtered` or `closed|filtered`.
     * Detect os
     * Detect services with version info
  * Tools:

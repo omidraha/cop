@@ -46,8 +46,8 @@ def check_host_is_up(host, fast=True):
 
 
 def host_port_discovery(host, fast=True):
-    cmd_f = 'nmap -n -Pn  -sTU --top-ports 100 -oG - -oN - --open -vvvvv --packet-trace {}'
-    cmd_s = 'nmap -n -Pn  -sTU --top-ports 1000 -oG - -oN - --open -vvvvv --packet-trace {}'
+    cmd_f = 'nmap -n -Pn  -sTU --top-ports 100 -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_s = 'nmap -n -Pn  -sTU --top-ports 1000 -oG - -oN - -vvvvv --packet-trace {}'
     ports = {}
     if fast:
         cmd = cmd_f.format(host)
@@ -64,10 +64,14 @@ def host_port_discovery(host, fast=True):
             sp_2 = line_2.split('/')
             if len(sp_2) != 5:
                 continue
-            if sp_2[2].lower() == 'udp' and sp_2[1].lower() == 'open':
-                ports.setdefault('udp', []).append(sp_2[0])
-            elif sp_2[2].lower() == 'tcp' and sp_2[1].lower() == 'open':
-                ports.setdefault('tcp', []).append(sp_2[0])
+            port_num = sp_2[0]
+            port_status = sp_2[1].lower()
+            port_type = sp_2[2].lower()
+            if port_type not in ['tcp', 'udp']:
+                continue
+            if port_status not in ['open', 'closed', 'filtered', 'open|filtered', 'closed|filtered', 'unfiltered']:
+                continue
+            ports.setdefault(port_type, {}).setdefault(port_status, []).append(port_num)
     return ports
 
 
@@ -76,12 +80,18 @@ def host_os_detect(host, ports):
     cmd_port_t = 'nmap -n -Pn -sT -p T:{} -O -oG - -oN - -vvvvv --packet-trace {}'
     cmd_port_u = 'nmap -n -Pn -sU -p U:{} -O -oG - -oN - -vvvvv --packet-trace {}'
     cmd_empty = 'nmap -n -Pn -O -oG - -vvvvv --packet-trace {}'
-    if 'tcp' in ports and 'udp' in ports:
-        cmd = cmd_port_tu.format(','.join(ports['tcp']), ','.join(ports['udp']), host)
-    elif 'tcp' in ports:
-        cmd = cmd_port_t.format(','.join(ports['tcp']), host)
-    elif 'udp' in ports:
-        cmd = cmd_port_u.format(','.join(ports['udp']), host)
+    open_tcp_ports = get_ports(ports, 'open', 'tcp')
+    open_udp_ports = get_ports(ports, 'open', 'udp')
+    close_tcp_ports = get_ports(ports, 'closed', 'tcp')
+    close_udp_ports = get_ports(ports, 'closed', 'udp')
+    tcp_ports = (open_tcp_ports or []) + close_tcp_ports[:5]
+    udp_ports = (open_udp_ports or []) + close_udp_ports[:5]
+    if tcp_ports and udp_ports:
+        cmd = cmd_port_tu.format(','.join(tcp_ports), ','.join(udp_ports), host)
+    elif tcp_ports:
+        cmd = cmd_port_t.format(','.join(tcp_ports), host)
+    elif udp_ports:
+        cmd = cmd_port_u.format(','.join(udp_ports), host)
     else:
         cmd = cmd_empty.format(host)
     output = run_process(cmd)
@@ -107,12 +117,14 @@ def host_services_detect(host, ports):
     cmd_port_t = 'nmap -n -Pn  -sT -p T:{} -sV -oG - -oN - -vvvvv --packet-trace {}'
     cmd_port_u = 'nmap -n -Pn  -sU -p U:{} -sV -oG - -oN - -vvvvv --packet-trace {}'
     cmd_empty = 'nmap -n -Pn  -sV -oG - -oN - -vvvvv --packet-trace {}'
-    if 'tcp' in ports and 'udp' in ports:
-        cmd = cmd_port_tu.format(','.join(ports['tcp']), ','.join(ports['udp']), host)
-    elif 'tcp' in ports:
-        cmd = cmd_port_t.format(','.join(ports['tcp']), host)
-    elif 'udp' in ports:
-        cmd = cmd_port_u.format(','.join(ports['udp']), host)
+    open_tcp_ports = get_ports(ports, 'open', 'tcp')
+    open_udp_ports = get_ports(ports, 'open', 'udp')
+    if open_tcp_ports and open_udp_ports:
+        cmd = cmd_port_tu.format(','.join(open_tcp_ports), ','.join(open_udp_ports), host)
+    elif open_tcp_ports:
+        cmd = cmd_port_t.format(','.join(open_tcp_ports), host)
+    elif open_udp_ports:
+        cmd = cmd_port_u.format(','.join(open_udp_ports), host)
     else:
         cmd = cmd_empty.format(host)
     output = run_process(cmd)
@@ -130,4 +142,23 @@ def host_services_detect(host, ports):
                 services.append((port, service, version))
     return services
 
+
+def get_ports(ports, p_status, p_type=None):
+    """
+    sample ports params:
+        ports = {'tcp': {'open':[80, 443], 'closed':[8080], 'open|filtered':[79]},
+                'udp': {'open':[53], 'closed':[161], 'open|filtered':[5050]}
+                }
+    :returns list, dict
+    """
+    if p_type:
+        return ports.get(p_type, {}).get(p_status, [])
+    tcp_ports = ports.get('tcp', {}).get(p_status)
+    udp_ports = ports.get('udp', {}).get(p_status)
+    p = {}
+    if tcp_ports:
+        p.update({'tcp': tcp_ports})
+    if udp_ports:
+        p.update({'udp': udp_ports})
+    return p
 
