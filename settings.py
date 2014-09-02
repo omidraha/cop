@@ -12,3 +12,4 @@ log_handler = WatchedFileHandler(filename=DEBUG_LOG_PATH, encoding='utf-8')
 logging.getLogger().addHandler(log_handler)
 log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT_SIMPLE))
 logging.getLogger("cop.run_process").setLevel(logging.DEBUG)
+USE_IOCTL = True

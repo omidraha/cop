@@ -7,9 +7,14 @@ import textwrap
 import struct
 import fcntl
 import termios
+from settings import USE_IOCTL
 
 logger = logging.getLogger('cop.run_process')
-std_lines, std_cols = struct.unpack('hh', fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, '1234'))
+
+if USE_IOCTL:
+    std_lines, std_cols = struct.unpack('hh', fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, '1234'))
+else:
+    std_cols = 80
 
 
 def run_process(cmd, log=True, console=True):
