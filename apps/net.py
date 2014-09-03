@@ -95,18 +95,21 @@ def host_os_detect(host, ports):
     else:
         cmd = cmd_empty.format(host)
     output = run_process(cmd)
-    os = []
+    os = {}
     for line in output:
-        sp = line.split('OS: ')
-        if len(sp) < 2:
+        if line.startswith('Running: '):
+            os['running'] = line.split('Running: ')[1:]
+        elif line.startswith('OS CPE: '):
+            os['cpe'] = line.split('OS CPE: ')[1:]
+        elif line.startswith('OS: '):
+            line = line.replace('OS details:', ' OS details:')
+            os['os'] = line.split('OS: ')[1:]
+        elif line.startswith('Running (JUST GUESSING): '):
+            os['guessing'] = line.split('Running (JUST GUESSING): ')[1:]
+        elif line.startswith('Aggressive OS guesses: '):
+            os['aggressive_guessing'] = line.split('Aggressive OS guesses: ')[1:]
+        else:
             continue
-        sp = sp[1].strip().split(',')
-        for line_2 in sp:
-            line_2 = line_2.strip().strip(' or ').split('\t')[0]
-            if '|' in line_2:
-                os.extend(line_2.split('|'))
-            else:
-                os.append(line_2)
     return os
 
 
@@ -161,4 +164,3 @@ def get_ports(ports, p_status, p_type=None):
     if udp_ports:
         p.update({'udp': udp_ports})
     return p
-
