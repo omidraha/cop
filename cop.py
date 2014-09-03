@@ -7,7 +7,7 @@ from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, 
 from apps.info import host_whois
 
 from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
-    host_services_detect, host_list, get_ports
+    host_services_detect, host_list, get_ports, get_ports_count
 from apps.utility import check_tools, print_line
 import settings
 
@@ -142,6 +142,7 @@ for ip in db['ips']:
             d = get_domain(ip)
             print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(open_ports, color_code=195, tab=2)
+        print_line(get_ports_count(ports), color_code=195, tab=3)
 
 print_line('Detect os ...', pre='|*')
 for ip in db['ips']:

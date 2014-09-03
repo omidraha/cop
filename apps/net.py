@@ -164,3 +164,12 @@ def get_ports(ports, p_status, p_type=None):
     if udp_ports:
         p.update({'udp': udp_ports})
     return p
+
+
+def get_ports_count(ports):
+    count = {}
+    for port_type, ports_states in ports.iteritems():
+        for port_state, ports in ports_states.iteritems():
+            count['{}:{}'.format(port_type, port_state)] = len(ports)
+    return count
+
