@@ -11,7 +11,6 @@ from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
 from apps.utility import check_tools, print_line
 import settings
 
-
 print_line('Call Of Penetration Tool version 0.1', pre='|+')
 tools_404 = check_tools()
 if tools_404:
@@ -166,7 +165,8 @@ for ip in db['ips']:
             print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(services, color_code=195, tab=2)
 
-print_line('Here is a dump of db:\n\n', color_code=195)
-pprint(db)
-print_line("\n\nThat's it.", color_code=195)
+print_line("That's it.", pre='|.')
+
+if raw_input('\n\nDump of db? (Y/N):').lower() in ['y', 'yes']:
+    pprint(db)
 
