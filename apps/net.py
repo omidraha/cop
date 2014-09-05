@@ -46,7 +46,7 @@ def check_host_is_up(host, fast=True):
 
 
 def host_port_discovery(host, fast=True):
-    cmd_f = 'nmap -n -Pn  -sTU --top-ports 100 -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_f = 'nmap -n -Pn  -sTU --top-ports 500 -oG - -oN - -vvvvv --packet-trace {}'
     cmd_s = 'nmap -n -Pn  -sTU --top-ports 1000 -oG - -oN - -vvvvv --packet-trace {}'
     ports = {}
     if fast:
