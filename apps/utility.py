@@ -49,12 +49,12 @@ def check_tools():
 
 
 def is_ip(host):
-    # @todo: improved
+    # @todo: needs to be improved
     return host.replace('.', '').isdigit()
 
 
 def is_ip_range(host):
-    # @todo: improved
+    # @todo: needs to be improved
     return host.replace('.', '').replace('-', '').replace('/', '').isdigit()
 
 
