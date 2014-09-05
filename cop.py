@@ -146,21 +146,25 @@ for ip in db['ips']:
 
 print_line('Detect os ...', pre='|*')
 for ip in db['ips']:
-    os = host_os_detect(ip, db['ips'][ip]['ports'])
-    if os:
-        db['ips'][ip]['os'] = os
-        d = get_domain(ip)
-        print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
-        print_line(os, color_code=195, tab=2)
+    ports = db['ips'][ip].get('ports')
+    if ports:
+        os = host_os_detect(ip, ports)
+        if os:
+            db['ips'][ip]['os'] = os
+            d = get_domain(ip)
+            print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+            print_line(os, color_code=195, tab=2)
 
 print_line('Detect services ...', pre='|*')
 for ip in db['ips']:
-    services = host_services_detect(ip, db['ips'][ip]['ports'])
-    if services:
-        db['ips'][ip]['services'] = services
-        d = get_domain(ip)
-        print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
-        print_line(services, color_code=195, tab=2)
+    ports = db['ips'][ip].get('ports')
+    if ports:
+        services = host_services_detect(ip, ports)
+        if services:
+            db['ips'][ip]['services'] = services
+            d = get_domain(ip)
+            print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+            print_line(services, color_code=195, tab=2)
 
 print_line('Here is a dump of db:\n\n', color_code=195)
 pprint(db)
