@@ -18,6 +18,8 @@ else:
 
 
 def run_process(cmd, log=True, console=True):
+    if console:
+        print_line(cmd, end='\r', color_code='243', wrap=True)
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
     output = []
     while True:
