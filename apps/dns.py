@@ -21,6 +21,8 @@ def host_dns_lookup(host):
 def host_reverse_dns_lookup(host, use_dig=True):
     cmd_nmap = 'nmap -Pn  -sL -oG - {}'
     cmd_dig = 'dig +short {}.in-addr.arpa. PTR'
+    cmd_dig_2 = 'dig +short -x {}'
+
     dns = ''
     if not is_ip(host):
         return dns

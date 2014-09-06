@@ -17,10 +17,10 @@ else:
     std_cols = 80
 
 
-def run_process(cmd, log=True, console=True):
+def run_process(cmd, log=True, console=True, out_queue=None):
     if console:
-        print_line(cmd, end='\r', color_code='243', wrap=True)
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+        print_line(cmd, end='\r', color_code='243')
+    p = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     output = []
     while True:
         ret_code = p.poll()
@@ -32,11 +32,14 @@ def run_process(cmd, log=True, console=True):
                 if log:
                     logger.info(out)
                 if console:
-                    print_line(out, end='\r', color_code='243', wrap=True)
+                    print_line(out, end='\r', color_code='243')
             if not line:
                 break
         if ret_code is not None:
             break
+    if out_queue:
+        out_queue.put(output)
+        out_queue.task_done()
     return output
 
 
@@ -101,3 +104,8 @@ def print_line(text, pre='|', end='\n', wrap=False, color_code=45, clear=True, t
             sys.stdout.write('\033[38;05;{}m{} {}{}\033[1;m{}'.format(color_code, pre, tab_chars, text, end))
 
 
+def get_from_recursive_dict(d, r):
+    v = d.get(r)
+    if v:
+        return get_from_recursive_dict(d, v)
+    return r

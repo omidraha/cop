@@ -32,3 +32,10 @@
       * Checking dns zone transfer
  * Tools:
    * dig
+
+* Brute Force Rules:
+  * Tasks:
+      * sub domain
+ * Tools:
+   * dig
+

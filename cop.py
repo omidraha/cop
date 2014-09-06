@@ -2,6 +2,7 @@
 # @todo: change to command line arguments
 import os
 from pprint import pprint
+from apps.bf import bf_sub_domain
 from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
     host_dns_wildcard, host_dns_any_query, host_dnssec, host_dns_check_allow_recursion
 from apps.info import host_whois
@@ -106,11 +107,11 @@ for domain in db['domains']:
 
 print_line('Checking Wildcard DNS ...', pre='|*')
 for domain in db['domains']:
-    wildcard_dns = host_dns_wildcard(domain)
-    if wildcard_dns:
-        db['domains'][domain]['wildcard_dns'] = wildcard_dns
+    wc_dns = host_dns_wildcard(domain)
+    if wc_dns:
+        db['domains'][domain]['wc_dns'] = wc_dns
         print_line(domain, color_code=87, tab=1)
-        print_line(wildcard_dns, color_code=195, tab=2)
+        print_line(wc_dns, color_code=195, tab=2)
 
 print_line('DNS Zone Transfer Checking ...', pre='|*')
 for domain in db['domains']:
@@ -164,6 +165,15 @@ for ip in db['ips']:
             d = get_domain(ip)
             print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(services, color_code=195, tab=2)
+
+print_line('Brute force sub domain ...', pre='|*')
+for domain in db['domains']:
+    wc_dns = db['domains'][domain].get('wc_dns') or []
+    bf_sub_d = bf_sub_domain(domain, wc_dns)
+    if bf_sub_domain:
+        db['domains'][domain]['bf_sub_domain'] = bf_sub_d
+        print_line(domain, color_code=87, tab=1)
+        print_line(bf_sub_d, color_code=195, tab=2)
 
 print_line("That's it.", pre='|.')
 
