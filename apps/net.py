@@ -131,18 +131,19 @@ def host_services_detect(host, ports):
     else:
         cmd = cmd_empty.format(host)
     output = run_process(cmd)
-    services = []
+    services = {}
     for line in output:
         sp = line.split('Ports: ')
-        if len(sp) != 2:
+        if len(sp) != 2 or 'Host:' not in line:
             continue
+        ip = sp[0].split()[1]
         sp = sp[1]
         for port_info in sp.split(','):
             if port_info.split('/')[1].lower() == 'open':
                 port = port_info.split('/')[0].strip()
                 service = port_info.split('/')[4].strip('?').strip()
                 version = port_info.split('/')[6].strip('?').strip()
-                services.append((port, service, version))
+                services.setdefault(ip, []).append((port, service, version))
     return services
 
 

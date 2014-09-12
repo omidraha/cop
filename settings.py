@@ -13,4 +13,4 @@ logging.getLogger().addHandler(log_handler)
 log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT_SIMPLE))
 logging.getLogger("cop.run_process").setLevel(logging.DEBUG)
 USE_IOCTL = True
-MAX_THREAD = 20
+MAX_THREAD_BF_SUB_DOMAINS = 20

@@ -2,7 +2,7 @@
 # @todo: change to command line arguments
 import os
 from pprint import pprint
-from apps.bf import bf_sub_domain
+from apps.bf import bf_sub_domains
 from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
     host_dns_wildcard, host_dns_any_query, host_dnssec, host_dns_check_allow_recursion
 from apps.info import host_whois
@@ -159,24 +159,24 @@ print_line('Detect services ...', pre='|*')
 for ip in db['ips']:
     ports = db['ips'][ip].get('ports')
     if ports:
-        services = host_services_detect(ip, ports)
+        services = host_services_detect(ip, ports).get(ip)
         if services:
             db['ips'][ip]['services'] = services
             d = get_domain(ip)
             print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(services, color_code=195, tab=2)
 
-print_line('Brute force sub domain ...', pre='|*')
+print_line('Brute force sub domains ...', pre='|*')
 for domain in db['domains']:
     wc_dns = db['domains'][domain].get('wc_dns') or []
-    bf_sub_d = bf_sub_domain(domain, wc_dns)
-    if bf_sub_domain:
-        db['domains'][domain]['bf_sub_domain'] = bf_sub_d
+    bf_sub_d = bf_sub_domains(domain, wc_dns)
+    if bf_sub_domains:
+        db['domains'][domain]['bf_sub_domains'] = bf_sub_d
         print_line(domain, color_code=87, tab=1)
         print_line(bf_sub_d, color_code=195, tab=2)
 
 print_line("That's it.", pre='|.')
 
-if raw_input('\n\nDump of db? (Y/N):').lower() in ['y', 'yes']:
+if raw_input('\n\nDump of db? (y/N):').lower() in ['y', 'yes']:
     pprint(db)
 

@@ -3,14 +3,14 @@
 ## Doing some penetration testing automatically.
 
 
-* Information Gathering Rules:
+* Information Gathering:
  * Tasks:
     * Whois IP
       * Extract `network range`, `network name`, `description`,
                 `address`, `country`, `city`, `phone`, `fax_number`, `fax-no`
  * Tools:
    * whois
-* Network Rules:
+* Network:
  * Tasks:
     * Check host is up
     * Discover states of `TCP` and `UDP` ports including: `open`, `closed`,
@@ -20,7 +20,7 @@
     * Detect services with version info
  * Tools:
    * nmap
-* Dns Rules:
+* Dns:
   * Tasks:
       * Performing dns lookup
       * Performing reverse dns lookup
@@ -33,9 +33,9 @@
  * Tools:
    * dig
 
-* Brute Force Rules:
+* Brute Force:
   * Tasks:
-      * sub domain
+      * sub domains
+      * ftp
  * Tools:
    * dig
-
