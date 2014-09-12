@@ -20,21 +20,22 @@
     * Detect services with version info
  * Tools:
    * nmap
-* Dns:
+* DNS:
   * Tasks:
-      * Performing dns lookup
-      * Performing reverse dns lookup
+      * Performing DNS lookup
+      * Performing reverse DNS lookup
       * Getting name server records
+      * Getting name servers bind version
       * Getting any type of ns record information
-      * Checking dnssec
-      * Checking wildcard dns
-      * Checking dns allow recursion
-      * Checking dns zone transfer
+      * Checking DNSSEC
+      * Checking wildcard DNS
+      * Checking DNS allow recursion
+      * Checking DNS zone transfer
  * Tools:
    * dig
-
 * Brute Force:
   * Tasks:
       * sub domains
  * Tools:
    * dig
+

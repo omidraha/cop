@@ -62,6 +62,21 @@ def host_name_server(host):
     return ns
 
 
+def get_name_server_bind_version(ns):
+    cmd = 'dig +short chaos txt version.bind  @{}'
+    bind_version = ''
+    if is_ip(ns):
+        return ns
+    output = run_process(cmd.format(ns))
+    for line in output:
+        if line.startswith(';') or line.startswith('dig:'):
+            continue
+        sp = line.strip()
+        if sp:
+            return sp
+    return bind_version
+
+
 def host_dns_any_query(host):
     cmd = 'dig +nocomments +nostats +nocmd +noquestion  any {}'
     dns_any_r = []

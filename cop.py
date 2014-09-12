@@ -4,7 +4,7 @@ import os
 from pprint import pprint
 from apps.bf import bf_sub_domains
 from apps.dns import host_dns_lookup, host_name_server, host_dns_zone_transfer, host_reverse_dns_lookup, \
-    host_dns_wildcard, host_dns_any_query, host_dnssec, host_dns_check_allow_recursion
+    host_dns_wildcard, host_dns_any_query, host_dnssec, host_dns_check_allow_recursion, get_name_server_bind_version
 from apps.info import host_whois
 
 from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
@@ -56,7 +56,7 @@ else:
     exit()
 
 if domains:
-    print_line('Performing DNS Lookup ...', pre='|*')
+    print_line('Performing DNS lookup ...', pre='|*')
     for domain in domains:
         dns_lookup = host_dns_lookup(domain)
         if dns_lookup:
@@ -64,7 +64,7 @@ if domains:
             print_line(domain, color_code=87, tab=1)
             print_line(dns_lookup, color_code=195, tab=2)
 
-print_line('Reverse DNS Lookup ...', pre='|*')
+print_line('Reverse DNS lookup ...', pre='|*')
 for ip in db['ips']:
     dns_r = host_reverse_dns_lookup(ip)
     if dns_r:
@@ -72,13 +72,24 @@ for ip in db['ips']:
         print_line(ip, color_code=87, tab=1)
         print_line(dns_r, color_code=195, tab=2)
 
-print_line('Getting Name Server records ...', pre='|*')
+print_line('Getting name server records ...', pre='|*')
 for domain in db['domains']:
     ns = host_name_server(domain)
     if ns:
-        db['domains'][domain]['ns'] = ns
+        db['domains'][domain]['name_servers'] = ns
         print_line(domain, color_code=87, tab=1)
         print_line(ns, color_code=195, tab=2)
+
+print_line('Getting name servers bind version ...', pre='|*')
+for domain in db['domains']:
+    for ns in db['domains'][domain].get('name_servers', []):
+        bind_version = get_name_server_bind_version(ns)
+        if bind_version:
+            db['domains'][domain].setdefault('name_servers_version', {})[ns] = bind_version
+    ns_version = db['domains'][domain].get('name_servers_version')
+    if ns_version:
+        print_line(domain, color_code=87, tab=1)
+        print_line(ns_version, color_code=195, tab=2)
 
 print_line('Getting any type of ns record information ...', pre='|*')
 for domain in db['domains']:
@@ -88,9 +99,9 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(dns_any_r, color_code=195, tab=2)
 
-print_line('Checking DNS Allow Recursion ...', pre='|*')
+print_line('Checking DNS allow recursion ...', pre='|*')
 for domain in db['domains']:
-    ns = db['domains'][domain].get('ns')
+    ns = db['domains'][domain].get('name_servers')
     dr = host_dns_check_allow_recursion(domain, ns)
     if dr:
         db['domains'][domain]['dr'] = dr
@@ -105,7 +116,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(dnssec, color_code=195, tab=2)
 
-print_line('Checking Wildcard DNS ...', pre='|*')
+print_line('Checking wildcard DNS ...', pre='|*')
 for domain in db['domains']:
     wc_dns = host_dns_wildcard(domain)
     if wc_dns:
@@ -113,9 +124,9 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(wc_dns, color_code=195, tab=2)
 
-print_line('DNS Zone Transfer Checking ...', pre='|*')
+print_line('DNS zone transfer checking ...', pre='|*')
 for domain in db['domains']:
-    ns = db['domains'][domain].get('ns')
+    ns = db['domains'][domain].get('name_servers')
     dtz = host_dns_zone_transfer(domain, ns)
     if dtz:
         db['domains'][domain]['dtz'] = dtz
