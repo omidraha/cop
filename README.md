@@ -36,6 +36,5 @@
 * Brute Force:
   * Tasks:
       * sub domains
-      * ftp
  * Tools:
    * dig
