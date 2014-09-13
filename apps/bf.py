@@ -17,13 +17,13 @@ def bf_sub_domains(domain, wc_dns=None, fast=True):
     ns = ['8.8.8.8', '8.8.4.4', '4.2.2.1', '4.2.2.2', '4.2.2.3',
           '4.2.2.4', '4.2.2.5', '4.2.2.6', '209.244.0.3',
           '209.244.0.4']
-    ips = set()
+    ns_records = set()
     sub_domains = []
     if wc_dns is None:
         wc_dns = host_dns_wildcard(domain)
     for ns_name, ns_type, ns_value in wc_dns:
         if ns_name.startswith('never_exist_'):
-            ips.add(ns_value)
+            ns_records.add(ns_value)
     fp = open(sub_domain_file)
     out_q = Queue.Queue()
     tds = []
@@ -59,9 +59,11 @@ def bf_sub_domains(domain, wc_dns=None, fast=True):
                         cname_db[sep[4]] = sep[0]
                     if sep[3] != 'A':
                         continue
+                    if sep[0] in ns_records:
+                        continue
                     if sep[0] in cname_db:
                         sep[0] = get_from_recursive_dict(cname_db, sep[0])
-                    if sep[4] not in ips:
+                    if sep[4] not in ns_records:
                         s = '{}'.format(sep[0].strip('.'))
                         if s not in sub_domains:
                             sub_domains.append(s)
