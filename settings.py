@@ -11,7 +11,7 @@ LOGGING_FORMAT_SIMPLE = '%(levelname)s %(asctime)s %(message)s'
 log_handler = WatchedFileHandler(filename=DEBUG_LOG_PATH, encoding='utf-8')
 logging.getLogger().addHandler(log_handler)
 log_handler.setFormatter(logging.Formatter(LOGGING_FORMAT_SIMPLE))
-logging.getLogger("cop.run_process").setLevel(logging.DEBUG)
+logging.getLogger("cop.run_process").setLevel(logging.INFO)
 USE_IOCTL = True
 MAX_THREAD_BF_SUB_DOMAINS = 20
 SHOW_LOGO = True
