@@ -30,7 +30,7 @@ def run_process(cmd, log=True, console=True, out_queue=None):
             if out:
                 output.append(out)
                 if log:
-                    logger.info(out)
+                    logger.debug(out)
                 if console:
                     print_line(out, end='\r', color_code='243')
             if not line:
@@ -101,7 +101,7 @@ def print_line(text, pre='|', end='\n', wrap=False, color_code=45, clear=True, t
                     '\033[38;05;{}m{} {}{}\033[1;m{}'.format(color_code, pre + random.choice(blink_chars), tab_chars,
                                                              line, end))
         else:
-            sys.stdout.write('\033[38;05;{}m{} {}{}\033[1;m{}'.format(color_code, pre, tab_chars, text, end))
+            sys.stdout.write('\033[38;05;{}m{}{}{}\033[1;m{}'.format(color_code, pre, tab_chars, text, end))
 
 
 def get_from_recursive_dict(d, r):
