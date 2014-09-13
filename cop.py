@@ -20,7 +20,7 @@ def cop_logo():
 |  ║  ║ ║╠═╝  │
 |  ╚═╝╚═╝╩    o
 |  Call Of Penetration Tool version 0.1
-|   """, pre='', tail=False)
+|   """.strip(), pre='', color_code=51)
 
 
 if settings.SHOW_LOGO:
@@ -31,14 +31,14 @@ else:
 tools_404 = check_tools()
 
 if tools_404:
-    print_line('Some tools, not found. at first call them !', pre='|-')
-    print_line('Here is an list of them: {}'.format(",".join(tools_404)), pre='|-')
+    print_line('Some tools, not found. at first call them !', pre='|- ')
+    print_line('Here is an list of them: {}'.format(",".join(tools_404)), pre='|- ')
     exit()
 if os.geteuid() != 0:
-    print_line('You need power of root permissions to do this !', pre='|-')
+    print_line('You need power of root permissions to do this !', pre='|- ')
     exit()
 
-print_line('Enter ip(s)/domain(s) to kick off: ', pre='|+', end='', wrap=False)
+print_line('Enter ip(s)/domain(s) to kick off: ', pre='|+ ', end='', wrap=False)
 input_host = raw_input()
 
 ips, domains = host_list(input_host)
@@ -58,7 +58,7 @@ def get_domain(ip):
             return db['ips'][each_ip].get('reverse_dns_lookup')
 
 
-print_line('Host alive checking ...', pre='|*')
+print_line('Host alive checking ...', pre='|* ')
 alive_ips = check_host_is_up(input_host, fast=False)
 
 if alive_ips:
@@ -72,7 +72,7 @@ else:
     exit()
 
 if domains:
-    print_line('Performing DNS lookup ...', pre='|*')
+    print_line('Performing DNS lookup ...', pre='|* ')
     for domain in domains:
         dns_lookup = host_dns_lookup(domain)
         if dns_lookup:
@@ -80,7 +80,7 @@ if domains:
             print_line(domain, color_code=87, tab=1)
             print_line(dns_lookup, color_code=195, tab=2)
 
-print_line('Reverse DNS lookup ...', pre='|*')
+print_line('Reverse DNS lookup ...', pre='|* ')
 for ip in db['ips']:
     dns_r = host_reverse_dns_lookup(ip)
     if dns_r:
@@ -88,7 +88,7 @@ for ip in db['ips']:
         print_line(ip, color_code=87, tab=1)
         print_line(dns_r, color_code=195, tab=2)
 
-print_line('Getting name server records ...', pre='|*')
+print_line('Getting name server records ...', pre='|* ')
 for domain in db['domains']:
     ns = host_name_server(domain)
     if ns:
@@ -96,7 +96,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(ns, color_code=195, tab=2)
 
-print_line('Getting name servers bind version ...', pre='|*')
+print_line('Getting name servers bind version ...', pre='|* ')
 for domain in db['domains']:
     for ns in db['domains'][domain].get('name_servers', []):
         bind_version = get_name_server_bind_version(ns)
@@ -107,7 +107,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(ns_version, color_code=195, tab=2)
 
-print_line('Getting any type of ns record information ...', pre='|*')
+print_line('Getting any type of ns record information ...', pre='|* ')
 for domain in db['domains']:
     dns_any_r = host_dns_any_query(domain)
     if dns_any_r:
@@ -115,7 +115,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(dns_any_r, color_code=195, tab=2)
 
-print_line('Checking DNS allow recursion ...', pre='|*')
+print_line('Checking DNS allow recursion ...', pre='|* ')
 for domain in db['domains']:
     ns = db['domains'][domain].get('name_servers')
     dr = host_dns_check_allow_recursion(domain, ns)
@@ -124,7 +124,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(dr, color_code=195, tab=2)
 
-print_line('Checking DNSSEC ...', pre='|*')
+print_line('Checking DNSSEC ...', pre='|* ')
 for domain in db['domains']:
     dnssec = host_dnssec(domain)
     if dnssec:
@@ -132,7 +132,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(dnssec, color_code=195, tab=2)
 
-print_line('Checking wildcard DNS ...', pre='|*')
+print_line('Checking wildcard DNS ...', pre='|* ')
 for domain in db['domains']:
     wc_dns = host_dns_wildcard(domain)
     if wc_dns:
@@ -140,7 +140,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(wc_dns, color_code=195, tab=2)
 
-print_line('DNS zone transfer checking ...', pre='|*')
+print_line('DNS zone transfer checking ...', pre='|* ')
 for domain in db['domains']:
     ns = db['domains'][domain].get('name_servers')
     dtz = host_dns_zone_transfer(domain, ns)
@@ -149,7 +149,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(dtz, color_code=195, tab=2)
 
-print_line('Whois IP ...', pre='|*')
+print_line('Whois IP ...', pre='|* ')
 for ip in db['ips']:
     whois = host_whois(ip)
     if whois:
@@ -158,7 +158,7 @@ for ip in db['ips']:
         print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
         print_line(whois, color_code=195, tab=2)
 
-print_line('Discover open ports ...', pre='|*')
+print_line('Discover open ports ...', pre='|* ')
 for ip in db['ips']:
     ports = host_port_discovery(ip, fast=True)
     if ports:
@@ -170,7 +170,7 @@ for ip in db['ips']:
             print_line(open_ports, color_code=195, tab=2)
         print_line(get_ports_count(ports), color_code=195, tab=3)
 
-print_line('Detect os ...', pre='|*')
+print_line('Detect os ...', pre='|* ')
 for ip in db['ips']:
     ports = db['ips'][ip].get('ports')
     if ports:
@@ -181,7 +181,7 @@ for ip in db['ips']:
             print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(os, color_code=195, tab=2)
 
-print_line('Detect services ...', pre='|*')
+print_line('Detect services ...', pre='|* ')
 for ip in db['ips']:
     ports = db['ips'][ip].get('ports')
     if ports:
@@ -192,7 +192,7 @@ for ip in db['ips']:
             print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(services, color_code=195, tab=2)
 
-print_line('Brute force sub domains ...', pre='|*')
+print_line('Brute force sub domains ...', pre='|* ')
 for domain in db['domains']:
     wc_dns = db['domains'][domain].get('wc_dns') or []
     bf_sub_d = bf_sub_domains(domain, wc_dns)
@@ -201,7 +201,7 @@ for domain in db['domains']:
         print_line(domain, color_code=87, tab=1)
         print_line(bf_sub_d, color_code=195, tab=2)
 
-print_line("That's it.", pre='|.')
+print_line("That's it.", pre='|. ')
 
 if raw_input('\n\nDump of db? (y/N):').lower() in ['y', 'yes']:
     pprint(db)
