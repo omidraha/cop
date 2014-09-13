@@ -1,4 +1,5 @@
 #! /usr/bin/python
+# -*- coding: utf8
 # @todo: change to command line arguments
 import os
 from pprint import pprint
@@ -12,8 +13,23 @@ from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
 from apps.utility import check_tools, print_line
 import settings
 
-print_line('Call Of Penetration Tool version 0.1', pre='|+')
+
+def cop_logo():
+    print_line("""
+|  ╔═╗╔═╗╔═╗  ┬
+|  ║  ║ ║╠═╝  │
+|  ╚═╝╚═╝╩    o
+|  Call Of Penetration Tool version 0.1
+|   """, pre='', tail=False)
+
+
+if settings.SHOW_LOGO:
+    cop_logo()
+else:
+    print_line('Call Of Penetration Tool version 0.1')
+
 tools_404 = check_tools()
+
 if tools_404:
     print_line('Some tools, not found. at first call them !', pre='|-')
     print_line('Here is an list of them: {}'.format(",".join(tools_404)), pre='|-')
@@ -22,7 +38,7 @@ if os.geteuid() != 0:
     print_line('You need power of root permissions to do this !', pre='|-')
     exit()
 
-print_line('Enter ip(s)/domain(s) to kick off: ', pre='|-', end='', wrap=False)
+print_line('Enter ip(s)/domain(s) to kick off: ', pre='|+', end='', wrap=False)
 input_host = raw_input()
 
 ips, domains = host_list(input_host)
@@ -135,7 +151,6 @@ for domain in db['domains']:
 
 print_line('Whois IP ...', pre='|*')
 for ip in db['ips']:
-    # @todo adding seen whois list, according to net range
     whois = host_whois(ip)
     if whois:
         db['ips'][ip]['whois'] = whois
