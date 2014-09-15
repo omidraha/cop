@@ -38,4 +38,24 @@
       * sub domains
  * Tools:
    * dig
+* Services:
+  * Tasks:
+    * ftp
+       * Anonymous access detection
+    * ssh
+       * Detect ssh authentication types available
+       * Username enumeration time-based attack for OpenSSH
+ * Tools:
+   * nmap, ssh
+
+
+
+## Usage
+```
+$ git clone https://github.com/omidraha/cop
+$ cd cop
+$ pip install -r requirements.txt
+$ ./cop.py
+```
+
 

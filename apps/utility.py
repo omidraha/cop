@@ -4,17 +4,8 @@ import subprocess
 import logging
 import sys
 import textwrap
-import struct
-import fcntl
-import termios
-from settings import USE_IOCTL
 
 logger = logging.getLogger('cop.run_process')
-
-if USE_IOCTL:
-    std_lines, std_cols = struct.unpack('hh', fcntl.ioctl(sys.stdout, termios.TIOCGWINSZ, '1234'))
-else:
-    std_cols = 80
 
 
 def run_process(cmd, log=True, console=True, out_queue=None):
@@ -25,7 +16,7 @@ def run_process(cmd, log=True, console=True, out_queue=None):
     while True:
         ret_code = p.poll()
         while True:
-            line = p.stdout.readline()
+            line = p.stdout.readline() or p.stderr.readline()
             out = line.strip()
             if out:
                 output.append(out)
@@ -73,6 +64,8 @@ def generate_chars(length=8, lower=True):
 
 
 def print_line(text, pre='|', end='\n', wrap=False, color_code=45, clear=True, tail=True, tab=0):
+    from settings import STD_COLS
+
     blink_chars = ['.', 'o', 'O', '0', '@']
     tab_char = '  '
     tab_chars = tab_char * tab
@@ -88,11 +81,12 @@ def print_line(text, pre='|', end='\n', wrap=False, color_code=45, clear=True, t
         text = text.replace('\t', tab_chars)
         len_text = len(text) + len(tab_chars)
         if clear:
-            sys.stdout.write('\r{}\r'.format(std_cols * ' '))
-        if not wrap and tail and len_text > std_cols:
-            text = text[:std_cols - std_cols / 4] + ' ...'
+            sys.stdout.write('\r{}\r'.format(STD_COLS * ' '))
+            sys.stdout.flush()
+        if not wrap and tail and len_text > STD_COLS:
+            text = text[:STD_COLS - STD_COLS / 4] + ' ...'
         if wrap:
-            cols = std_cols - 3
+            cols = STD_COLS - 3
             for line in textwrap.wrap(text, cols):
                 len_line = len(line)
                 if len_line <= cols:
@@ -102,6 +96,7 @@ def print_line(text, pre='|', end='\n', wrap=False, color_code=45, clear=True, t
                                                              line, end))
         else:
             sys.stdout.write('\033[38;05;{}m{}{}{}\033[1;m{}'.format(color_code, pre, tab_chars, text, end))
+        sys.stdout.flush()
 
 
 def get_from_recursive_dict(d, r):
@@ -109,3 +104,4 @@ def get_from_recursive_dict(d, r):
     if v:
         return get_from_recursive_dict(d, v)
     return r
+
