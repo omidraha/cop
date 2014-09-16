@@ -162,7 +162,7 @@ for ip in db['ips']:
 
 print_line('Discover open ports ...', pre='|* ')
 for ip in db['ips']:
-    ports = host_port_discovery(ip, fast=True)
+    ports = host_port_discovery(ip)
     if ports:
         db['ips'][ip]['ports'] = ports
         open_ports = get_ports(ports, 'open')
@@ -200,28 +200,28 @@ for ip in db['ips']:
     if services:
         d = get_domain(ip)
         print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
-    for port, name, version in services:
-        if name == 'ftp':
-            print_line('FTP anonymous access  check ...', tab=2)
-            res = ftp_anonymous_access_check(ip, port)
-            if res[0]:
-                db['ips'][ip]['ftp_anonymous'] = res
-                print_line(res[1], color_code=195, tab=2)
-        elif name == 'ssh':
-            print_line('SSH authentication types available check ...', tab=2)
-            auth_types = ssh_authentication_types_available_check(ip, port)
-            if auth_types:
-                db['ips'][ip]['ssh_auth_types'] = auth_types
-                print_line('SSH authentication available types:', color_code=195, tab=3)
-                print_line(auth_types, color_code=195, tab=4)
-            if 'password' in db['ips'][ip]['ssh_auth_types'] and 'openssh' in version.lower():
-                fp = open(ROOT_PATH + '/lst/user_common_14')
-                user_list = fp.read().strip().split()
-                print_line('OpenSSH username enumeration time-based attack ...', tab=2)
-                users = open_ssh_time_attack(ip, port, user_list)
-                if users:
-                    print_line('SSH username enumeration:', color_code=195, tab=3)
-                    print_line(users, color_code=195, tab=4)
+        for port, name, version in services:
+            if name == 'ftp':
+                print_line('FTP anonymous access  check ...', tab=2)
+                res = ftp_anonymous_access_check(ip, port)
+                if res[0]:
+                    db['ips'][ip]['ftp_anonymous'] = res
+                    print_line(res[1], color_code=195, tab=2)
+            elif name == 'ssh':
+                print_line('SSH authentication types available check ...', tab=2)
+                auth_types = ssh_authentication_types_available_check(ip, port)
+                if auth_types:
+                    db['ips'][ip]['ssh_auth_types'] = auth_types
+                    print_line('SSH authentication available types:', color_code=195, tab=3)
+                    print_line(auth_types, color_code=195, tab=4)
+                if 'password' in db['ips'][ip]['ssh_auth_types'] and 'openssh' in version.lower():
+                    fp = open(ROOT_PATH + '/lst/user_common_14')
+                    user_list = fp.read().strip().split()
+                    print_line('OpenSSH username enumeration time-based attack ...', tab=2)
+                    users = open_ssh_time_attack(ip, port, user_list)
+                    if users:
+                        print_line('SSH username enumeration:', color_code=195, tab=3)
+                        print_line(users, color_code=195, tab=4)
 
 print_line('Brute force sub domains ...', pre='|* ')
 for domain in db['domains']:
