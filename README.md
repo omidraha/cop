@@ -5,11 +5,11 @@
 
 *   Information Gathering:
     * Tasks:
-    *   Whois IP
-    *   Extract `network range`, `network name`, `description`,
-                `address`, `country`, `city`, `phone`, `fax_number`, `fax-no`
+        *   Whois IP
+        *   Extract `network range`, `network name`, `description`,
+                    `address`, `country`, `city`, `phone`, `fax_number`, `fax-no`
     *   Tools:
-    *   whois
+        *   whois
 *   Network:
     *   Tasks:
         *   Check host is up
@@ -20,7 +20,7 @@
         *   Detect os
         *   Detect services with version info
     *   Tools:
-    *   nmap, masscan
+        *   nmap, masscan
 *   DNS:
     *   Tasks:
         *   Performing DNS lookup
