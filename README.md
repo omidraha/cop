@@ -52,7 +52,7 @@
 ## Tools
 
 *   whois https://github.com/rfc1036/whois
-*   dig http://linux.die.net/man/1/dig
+*   dig http://linux.die.net/man/1/dig (On Debian, it's available in the dnsutils package)
 *   nmap http://nmap.org/
 *   masscan https://github.com/robertdavidgraham/masscan
 *   ssh http://linux.die.net/man/1/ssh
