@@ -46,7 +46,8 @@
         *   ssh
             *   Detect ssh authentication types available
             *   Username enumeration time-based attack for OpenSSH
-
+        *   rpcbind
+            *   Connect to PortMapper and fetches list of registered programs
     *   Tools:
         *   nmap, ssh, rpcinfo
 
