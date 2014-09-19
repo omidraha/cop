@@ -62,7 +62,7 @@
 
 ## Usage
 ```
-$ git clone https://github.com/omidraha/cop
+$ git clone https://github.com/omidraha/cop.git
 $ cd cop
 $ pip install -r requirements.txt
 $ ./cop.py
