@@ -1,9 +1,11 @@
+import os
 import random
 import string
 import subprocess
 import logging
 import sys
 import textwrap
+import fcntl
 
 logger = logging.getLogger('cop.run_process')
 
@@ -16,15 +18,15 @@ def run_process(cmd, log=True, console=True, out_queue=None):
     while True:
         ret_code = p.poll()
         while True:
-            line = p.stdout.readline() or p.stderr.readline()
-            out = line.strip()
-            if out:
-                output.append(out)
+            lines = (non_block_read(p.stdout) + non_block_read(p.stderr)).strip()
+            if lines:
+                lines = lines.split('\n')
+                output.extend(lines)
                 if log:
-                    logger.debug(out)
+                    logger.debug("\n".join(lines))
                 if console:
-                    print_line(out, end='\r', color_code='243')
-            if not line:
+                    print_line(lines, end='\r', color_code='243')
+            if not lines:
                 break
         if ret_code is not None:
             break
@@ -35,7 +37,7 @@ def run_process(cmd, log=True, console=True, out_queue=None):
 
 
 def check_tools():
-    tools = ['nmap', 'whois', 'dig']
+    tools = ['nmap', 'whois', 'dig', 'ssh', 'masscan']
     tools_404 = []
     for tool in tools:
         output = run_process('which {}'.format(tool), console=False)[0]
@@ -105,3 +107,12 @@ def get_from_recursive_dict(d, r):
         return get_from_recursive_dict(d, v)
     return r
 
+
+def non_block_read(stream):
+    fd = stream.fileno()
+    fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+    fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+    try:
+        return stream.read()
+    except IOError:
+        return ''

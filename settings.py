@@ -6,7 +6,6 @@ import struct
 import fcntl
 import sys
 import termios
-from time import sleep
 from apps.utility import print_line
 
 ROOT_PATH = os.path.abspath(os.path.dirname(__file__))

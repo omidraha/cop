@@ -160,7 +160,7 @@ for ip in db['ips']:
         print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
         print_line(whois, color_code=195, tab=2)
 
-print_line('Discover open ports ...', pre='|* ')
+print_line('Discover open ports (scan 100 top tcp/udp ports) ...', pre='|* ')
 for ip in db['ips']:
     ports = host_port_discovery(ip)
     if ports:
@@ -172,10 +172,27 @@ for ip in db['ips']:
             print_line(open_ports, color_code=195, tab=2)
         print_line(get_ports_count(ports), color_code=195, tab=3)
 
+print_line('Discover open ports (scan all tcp/udp 0-65535 ports) ...', pre='|* ')
+for ip in db['ips']:
+    ports = host_port_discovery(ip, scan_all=True)
+    if ports:
+        if ports.get('tcp'):
+            new_p = list(set(ports['tcp']['open']) - set(db['ips'][ip].get('ports', {}).get('tcp', {}).get('open', [])))
+            db['ips'][ip].setdefault('ports', {}).setdefault('tcp', {}).setdefault('open', []).extend(new_p)
+        if ports.get('udp'):
+            new_p = list(set(ports['udp']['open']) - set(db['ips'][ip].get('ports', {}).get('udp', {}).get('open', [])))
+            db['ips'][ip].setdefault('ports', {}).setdefault('udp', {}).setdefault('open', []).extend(new_p)
+        open_ports = get_ports(ports, 'open')
+        d = get_domain(ip)
+        print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
+        print_line(open_ports, color_code=195, tab=2)
+        print_line(get_ports_count(ports), color_code=195, tab=3)
+
 print_line('Detect os ...', pre='|* ')
 for ip in db['ips']:
     ports = db['ips'][ip].get('ports')
-    if ports:
+    open_ports = get_ports(ports, 'open')
+    if open_ports:
         os = host_os_detect(ip, ports)
         if os:
             db['ips'][ip]['os'] = os
@@ -186,7 +203,8 @@ for ip in db['ips']:
 print_line('Detect services ...', pre='|* ')
 for ip in db['ips']:
     ports = db['ips'][ip].get('ports')
-    if ports:
+    open_ports = get_ports(ports, 'open')
+    if open_ports:
         services = host_services_detect(ip, ports).get(ip)
         if services:
             db['ips'][ip]['services'] = services

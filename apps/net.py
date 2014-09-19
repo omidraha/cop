@@ -45,33 +45,40 @@ def check_host_is_up(host, fast=True):
     return hosts
 
 
-def host_port_discovery(host, fast=True):
-    cmd_f = 'nmap -n -Pn  -sTU --top-ports 500 -oG - -oN - -vvvvv --packet-trace {}'
-    cmd_s = 'nmap -n -Pn  -sTU --top-ports 1000 -oG - -oN - -vvvvv --packet-trace {}'
+def host_port_discovery(host, scan_all=False):
+    cmd_nmap = 'nmap -n -Pn  -sSU -F -oG - -oN - -vvvvv --packet-trace {}'
+    cmd_masscan = 'masscan -p0-65535,U:0-65535 -vvvvv {}'
     ports = {}
-    if fast:
-        cmd = cmd_f.format(host)
+    if scan_all:
+        cmd = cmd_masscan.format(host)
     else:
-        cmd = cmd_s.format(host)
+        cmd = cmd_nmap.format(host)
     output = run_process(cmd)
-    for line in output:
-        sp = line.split('Ports: ')
-        if len(sp) != 2:
-            continue
-        sp = sp[1].split('///')
-        for line_2 in sp:
-            line_2 = line_2.strip(', ')
-            sp_2 = line_2.split('/')
-            if len(sp_2) != 5:
+    if scan_all:
+        for line in output:
+            if not line.startswith('Discovered open port '):
                 continue
-            port_num = sp_2[0]
-            port_status = sp_2[1].lower()
-            port_type = sp_2[2].lower()
-            if port_type not in ['tcp', 'udp']:
+            port_num, port_type = line.split('Discovered open port ')[1].split()[0].split('/')
+            ports.setdefault(port_type, {}).setdefault('open', []).append(port_num)
+    else:
+        for line in output:
+            sp = line.split('Ports: ')
+            if len(sp) != 2:
                 continue
-            if port_status not in ['open', 'closed', 'filtered', 'open|filtered', 'closed|filtered', 'unfiltered']:
-                continue
-            ports.setdefault(port_type, {}).setdefault(port_status, []).append(port_num)
+            sp = sp[1].split('///')
+            for line_2 in sp:
+                line_2 = line_2.strip(', ')
+                sp_2 = line_2.split('/')
+                if len(sp_2) != 5:
+                    continue
+                port_num = sp_2[0]
+                port_status = sp_2[1].lower()
+                port_type = sp_2[2].lower()
+                if port_type not in ['tcp', 'udp']:
+                    continue
+                if port_status not in ['open', 'closed', 'filtered', 'open|filtered', 'closed|filtered', 'unfiltered']:
+                    continue
+                ports.setdefault(port_type, {}).setdefault(port_status, []).append(port_num)
     return ports
 
 
@@ -149,11 +156,15 @@ def host_services_detect(host, ports):
 
 def get_ports(ports, p_status, p_type=None):
     """
-    sample ports params:
-        ports = {'tcp': {'open':[80, 443], 'closed':[8080], 'open|filtered':[79]},
-                'udp': {'open':[53], 'closed':[161], 'open|filtered':[5050]}
-                }
-    :returns list, dict
+    >>> ports = {'tcp': {'open':[80, 443], 'closed':[8080], 'open|filtered':[79]},
+    ...          'udp': {'open':[53], 'open|filtered':[5050]}
+    ...          }
+    >>> get_ports(ports, 'open')
+    {'udp': [53], 'tcp': [80, 443]}
+    >>> get_ports(ports, 'open', p_type='tcp')
+    [80, 443]
+    >>> get_ports(ports, 'closed', p_type='udp')
+    []
     """
     if p_type:
         return ports.get(p_type, {}).get(p_status, [])
@@ -170,7 +181,6 @@ def get_ports(ports, p_status, p_type=None):
 def get_ports_count(ports):
     count = {}
     for port_type, ports_states in ports.iteritems():
-        for port_state, ports in ports_states.iteritems():
-            count['{}:{}'.format(port_type, port_state)] = len(ports)
+        for port_state, port_nums in ports_states.iteritems():
+            count['{}:{}'.format(port_type, port_state)] = len(port_nums)
     return count
-
