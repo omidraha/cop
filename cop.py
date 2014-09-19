@@ -10,7 +10,8 @@ from apps.info import host_whois
 
 from apps.net import check_host_is_up, host_port_discovery, host_os_detect, \
     host_services_detect, host_list, get_ports, get_ports_count
-from apps.srv import ftp_anonymous_access_check, ssh_authentication_types_available_check, open_ssh_time_attack
+from apps.srv import ftp_anonymous_access_check, ssh_authentication_types_available_check, open_ssh_time_attack, \
+    rpc_info
 from apps.utility import check_tools, print_line
 import settings
 from settings import ROOT_PATH
@@ -56,6 +57,8 @@ def get_domains(ip):
         for each_ip in db['domains'][domain]['dns_lookup']:
             if each_ip == ip:
                 domains.append(domain)
+    if domains:
+        return domains
     for each_ip in db['ips']:
         if each_ip == ip:
             r_DNS = db['ips'][each_ip].get('reverse_dns_lookup')
@@ -223,15 +226,15 @@ for ip in db['ips']:
     if services:
         ', '.join(get_domains(ip))
         print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
-        for port, name, version in services:
+        for port, protocol, name, version in services:
             if name == 'ftp':
-                print_line('FTP anonymous access  check ...', tab=2)
+                print_line('{}:{} FTP anonymous access  check ...'.format(port, protocol), tab=2)
                 res = ftp_anonymous_access_check(ip, port)
                 if res[0]:
                     db['ips'][ip]['ftp_anonymous'] = res
                     print_line(res[1], color_code=195, tab=2)
             elif name == 'ssh':
-                print_line('SSH authentication types available check ...', tab=2)
+                print_line('{}:{} SSH authentication types available check ...'.format(port, protocol), tab=2)
                 auth_types = ssh_authentication_types_available_check(ip, port)
                 if auth_types:
                     db['ips'][ip]['ssh_auth_types'] = auth_types
@@ -240,11 +243,19 @@ for ip in db['ips']:
                 if 'password' in db['ips'][ip]['ssh_auth_types'] and 'openssh' in version.lower():
                     fp = open(ROOT_PATH + '/lst/user_common_14')
                     user_list = fp.read().strip().split()
-                    print_line('OpenSSH username enumeration time-based attack ...', tab=2)
+                    print_line('{}:{} OpenSSH username enumeration time-based attack ...'.format(port, protocol), tab=2)
                     users = open_ssh_time_attack(ip, port, user_list)
                     if users:
                         print_line('SSH username enumeration:', color_code=195, tab=3)
                         print_line(users, color_code=195, tab=4)
+            elif name == 'rpcbind':
+                print_line('{}:{} Connect to PortMapper and fetches registered programs ...'.format(port, protocol),
+                           tab=2)
+                res = rpc_info(ip)
+                if res:
+                    db['ips'][ip].setdefault('rpc_info', {})[protocol] = res
+                    print_line('PROGRAM VERSION PROTOCOL PORT  SERVICE', color_code=195, tab=3)
+                    print_line(res[0], color_code=195, tab=3)
 
 print_line('Brute force sub domains ...', pre='|* ')
 for domain in db['domains']:

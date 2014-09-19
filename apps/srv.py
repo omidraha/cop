@@ -58,3 +58,25 @@ def open_ssh_time_attack(host, port, user_list):
         if end_time - start_time > 15:
             users.append(user)
     return users
+
+
+def rpc_info(host):
+    cmd = 'rpcinfo -p {}'
+    info = []
+    ports = {}
+    output = run_process(cmd.format(host))
+    for index, line in enumerate(output):
+        line = line.strip()
+        if index == 0 and not line.startswith('program vers proto   port  service'):
+            break
+        elif index == 0 and line.startswith('program vers proto   port  service'):
+            continue
+        sep = line.split()
+        if len(sep) != 5:
+            return
+        program, vers, proto, port, service = sep
+        info.append((program, vers, proto, port, service))
+        cur_ports = ports.get(proto, {}).get('open', [])
+        if port not in cur_ports:
+            ports.setdefault(proto, {}).setdefault('open', []).append(port)
+    return info, ports

@@ -148,9 +148,10 @@ def host_services_detect(host, ports):
         for port_info in sp.split(','):
             if port_info.split('/')[1].lower() == 'open':
                 port = port_info.split('/')[0].strip()
+                protocol = port_info.split('/')[2].strip()
                 service = port_info.split('/')[4].strip('?').strip()
                 version = port_info.split('/')[6].strip('?').strip()
-                services.setdefault(ip, []).append((port, service, version))
+                services.setdefault(ip, []).append((port, protocol, service, version))
     return services
 
 

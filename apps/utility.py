@@ -37,7 +37,7 @@ def run_process(cmd, log=True, console=True, out_queue=None):
 
 
 def check_tools():
-    tools = ['nmap', 'whois', 'dig', 'ssh', 'masscan']
+    tools = ['nmap', 'whois', 'dig', 'ssh', 'masscan', 'rpcinfo']
     tools_404 = []
     for tool in tools:
         output = run_process('which {}'.format(tool), console=False)

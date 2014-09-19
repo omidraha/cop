@@ -46,8 +46,9 @@
         *   ssh
             *   Detect ssh authentication types available
             *   Username enumeration time-based attack for OpenSSH
+
     *   Tools:
-        *   nmap, ssh
+        *   nmap, ssh, rpcinfo
 
 ## Tools
 
@@ -59,6 +60,7 @@
 *   paramiko https://github.com/paramiko/paramiko (external python module)
 *   fierce http://ha.ckers.org/fierce/ (* only using sub domains list, currently added to `lst` folder)
 *   subbrute https://github.com/TheRook/subbrute  (* only using sub domains list, currently added to `lst` folder)
+*   rpcinfo http://linux.die.net/man/8/rpcinfo
 
 ## Usage
 ```
