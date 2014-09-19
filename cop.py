@@ -50,14 +50,18 @@ hosts = ips + domains
 db = {'ips': {}, 'domains': {}}
 
 
-def get_domain(ip):
+def get_domains(ip):
+    domains = []
     for domain in db['domains']:
         for each_ip in db['domains'][domain]['dns_lookup']:
             if each_ip == ip:
-                return domain
+                domains.append(domain)
     for each_ip in db['ips']:
         if each_ip == ip:
-            return db['ips'][each_ip].get('reverse_dns_lookup')
+            r_DNS = db['ips'][each_ip].get('reverse_dns_lookup')
+            if r_DNS and r_DNS not in domains:
+                domains.append(r_DNS)
+    return domains
 
 
 print_line('Host alive checking ...', pre='|* ')
@@ -67,7 +71,8 @@ if alive_ips:
     len_host = len(alive_ips)
     for ip in alive_ips:
         db['ips'][ip] = {}
-        print_line('{}'.format(get_domain(ip) or ip), color_code=195, tab=1)
+        d = ', '.join(get_domains(ip))
+        print_line('{}'.format(d or ip), color_code=195, tab=1)
     print_line('{} Host{} up.'.format(len_host, 's' if len_host > 1 else ''), color_code=195, tab=1)
 else:
     print_line(' Nothing to do !')
@@ -156,7 +161,7 @@ for ip in db['ips']:
     whois = host_whois(ip)
     if whois:
         db['ips'][ip]['whois'] = whois
-        d = get_domain(ip)
+        d = ', '.join(get_domains(ip))
         print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
         print_line(whois, color_code=195, tab=2)
 
@@ -167,7 +172,7 @@ for ip in db['ips']:
         db['ips'][ip]['ports'] = ports
         open_ports = get_ports(ports, 'open')
         if open_ports:
-            d = get_domain(ip)
+            d = ', '.join(get_domains(ip))
             print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(open_ports, color_code=195, tab=2)
         print_line(get_ports_count(ports), color_code=195, tab=3)
@@ -183,7 +188,7 @@ for ip in db['ips']:
             new_p = list(set(ports['udp']['open']) - set(db['ips'][ip].get('ports', {}).get('udp', {}).get('open', [])))
             db['ips'][ip].setdefault('ports', {}).setdefault('udp', {}).setdefault('open', []).extend(new_p)
         open_ports = get_ports(ports, 'open')
-        d = get_domain(ip)
+        d = ', '.join(get_domains(ip))
         print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
         print_line(open_ports, color_code=195, tab=2)
         print_line(get_ports_count(ports), color_code=195, tab=3)
@@ -196,7 +201,7 @@ for ip in db['ips']:
         os = host_os_detect(ip, ports)
         if os:
             db['ips'][ip]['os'] = os
-            d = get_domain(ip)
+            d = ', '.join(get_domains(ip))
             print_line('{} {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(os, color_code=195, tab=2)
 
@@ -208,7 +213,7 @@ for ip in db['ips']:
         services = host_services_detect(ip, ports).get(ip)
         if services:
             db['ips'][ip]['services'] = services
-            d = get_domain(ip)
+            d = ', '.join(get_domains(ip))
             print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
             print_line(services, color_code=195, tab=2)
 
@@ -216,7 +221,7 @@ print_line('Services probing ...', pre='|* ')
 for ip in db['ips']:
     services = db['ips'][ip].get('services')
     if services:
-        d = get_domain(ip)
+        ', '.join(get_domains(ip))
         print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
         for port, name, version in services:
             if name == 'ftp':
