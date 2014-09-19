@@ -50,14 +50,15 @@
         *   nmap, ssh
 
 ## Tools
-    *   whois https://github.com/rfc1036/whois
-    *   dig http://linux.die.net/man/1/dig
-    *   nmap http://nmap.org/
-    *   masscan https://github.com/robertdavidgraham/masscan
-    *   ssh http://linux.die.net/man/1/ssh
-    *   paramiko https://github.com/paramiko/paramiko (external python module)
-    *   fierce http://ha.ckers.org/fierce/ (* only using sub domains list, currently added to `lst` folder)
-    *   subbrute https://github.com/TheRook/subbrute  (* only using sub domains list, currently added to `lst` folder)
+
+*   whois https://github.com/rfc1036/whois
+*   dig http://linux.die.net/man/1/dig
+*   nmap http://nmap.org/
+*   masscan https://github.com/robertdavidgraham/masscan
+*   ssh http://linux.die.net/man/1/ssh
+*   paramiko https://github.com/paramiko/paramiko (external python module)
+*   fierce http://ha.ckers.org/fierce/ (* only using sub domains list, currently added to `lst` folder)
+*   subbrute https://github.com/TheRook/subbrute  (* only using sub domains list, currently added to `lst` folder)
 
 ## Usage
 ```
