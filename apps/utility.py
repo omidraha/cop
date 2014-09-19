@@ -40,7 +40,7 @@ def check_tools():
     tools = ['nmap', 'whois', 'dig', 'ssh', 'masscan']
     tools_404 = []
     for tool in tools:
-        output = run_process('which {}'.format(tool), console=False)[0]
+        output = run_process('which {}'.format(tool), console=False)
         if not output:
             tools_404.append(tool)
     return tools_404

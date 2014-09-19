@@ -34,7 +34,7 @@ tools_404 = check_tools()
 
 if tools_404:
     print_line('Some tools, not found. at first call them !', pre='|- ')
-    print_line('Here is an list of them: {}'.format(",".join(tools_404)), pre='|- ')
+    print_line('Here is an list of them: {}'.format(", ".join(tools_404)), pre='|- ')
     exit()
 if os.geteuid() != 0:
     print_line('You need power of root permissions to do this !', pre='|- ')
