@@ -224,7 +224,7 @@ print_line('Services probing ...', pre='|* ')
 for ip in db['ips']:
     services = db['ips'][ip].get('services')
     if services:
-        ', '.join(get_domains(ip))
+        d = ', '.join(get_domains(ip))
         print_line('{}  {}'.format(ip, '({})'.format(d) if d else ''), color_code=87, tab=1)
         for port, protocol, name, version in services:
             if name == 'ftp':
